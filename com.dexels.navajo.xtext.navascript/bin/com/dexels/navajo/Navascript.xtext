@@ -1,0 +1,364 @@
+grammar com.dexels.navajo.Navascript 
+
+hidden(WS, ML_COMMENT, SL_COMMENT)
+
+import "http://www.eclipse.org/emf/2002/Ecore"
+
+generate navascript "http://www.dexels.com/navajo/Navascript"
+ 
+Navascript: {Navascript} validations=Validations? toplevelStatements=TopLevelStatements finally=Finally?;
+
+// TopLevelStatement ::= Include | Message | Var | Break | Map | AntiMessage | Define | ConditionalEmptyMessage | Synchronized | Print | Log | Loop | Methods
+
+TopLevelStatements : {TopLevelStatements} statements+=TopLevelStatement*;
+
+TopLevelStatement : {TopLevelStatement}  (IF condition=Expression THEN)?
+	statement=( Message | Var | Map | AntiMessage | Define | Print | Log | Loop | Methods | Include | Break | Synchronized | BlockStatements )
+;
+
+InnerBody:
+	{InnerBody} (IF condition=Expression THEN)?
+	statement=( Property |  Option | MethodOrSetter|  Message | AntiMessage | Include | Methods | Var | Print | Log | Define | Loop | Map | Break | BlockStatements )
+;
+
+/*
+ * if EXPRESSION THEN { [STATEMENTS }
+ */
+BlockStatements : {BlockStatements} BLOCK_START statements+=InnerBody* BLOCK_END ;
+
+/*
+ * synchronized() {
+ * 
+ * }
+ */
+
+Synchronized : SYNCHRONIZED_DEF ARGS_START arguments=SynchronizedArguments ARGS_END BLOCK_START statements+=TopLevelStatement* BLOCK_END;
+
+SynchronizedArguments : arguments+=SynchronizedArgument ( ARG_SEP arguments+= SynchronizedArgument )*;
+
+SynchronizedArgument : ( {SynchronizedArgument} SContext | SKey | STimeout | SBreakOnNoLock );
+
+SContext : CONTEXT_DEF ASSIGNMENT SContextType;
+
+SKey : KEY_DEF LiteralOrExpression;
+
+STimeout : TIMEOUT_DEF ASSIGNMENT Expression;
+
+SBreakOnNoLock : BREAKONNOLOCK_DEF ASSIGNMENT Expression;
+
+SContextType : ( "user" | "service" );
+
+/*
+ * break([code=VALUE,description=VALUE,error=VALUE])
+ */
+Break : {Break} BREAK_DEF ( ARGS_START parameters=BreakParameters? ARGS_END )? EOL;
+
+BreakParameter : ( CODE_DEF ASSIGNMENT code=LiteralOrExpression | DESCRIPTION_DEF ASSIGNMENT description=LiteralOrExpression | ERROR_DEF ASSIGNMENT LiteralOrExpression ) ;
+
+BreakParameters : parameters+=BreakParameter ( ARG_SEP parameters+=BreakParameter )*;
+
+Validations : {Validations} VALIDATIONS_DEF BLOCK_START checks+=Check* BLOCK_END ;
+
+Define:
+	{Define} DEFINE_DEF defineKey=QUOTED_IDENTIFIER ASSIGNMENT expression=Expression EOL
+;
+
+Check : {Check} (IF condition=Expression THEN)? CHECK_DEF ARGS_START checkAttributes+=CheckAttribute ( ARG_SEP checkAttributes+=CheckAttribute)? ARGS_END ASSIGNMENT expression=Expression EOL;
+
+CheckAttribute : {CheckAttribute} (CODE_DEF ASSIGNMENT value=LiteralOrExpression) | (DESCRIPTION_DEF ASSIGNMENT value=LiteralOrExpression);
+
+LiteralOrExpression : {LiteralOrExpression} literal=(QUOTED_IDENTIFIER | STRING_CONSTANT) | expression=Expression ;
+
+Print:
+	{Print} PRINT_DEF ARGS_START expression=Expression ARGS_END EOL
+;
+
+Log:
+	{Log} LOG_DEF ARGS_START expression=Expression ARGS_END EOL
+;
+
+Finally: 
+	{Finally} FINALLY_DEF BLOCK_START finallyStatements=TopLevelStatements BLOCK_END
+;
+
+Methods:
+	{Methods} METHODS_DEF BLOCK_START ( methods+=QUOTED_IDENTIFIER EOL )* BLOCK_END
+;
+
+Loop:
+	{Loop} LOOP_DEF ( mappable=MappableIdentifier | tml=TmlIdentifier ) 
+	   ( ARGS_START FILTER_DEF ASSIGNMENT filter=Expression ARGS_END )? BLOCK_START statements+=InnerBody* BLOCK_END 
+;
+
+Include:
+	{Include} INCLUDE_DEF scriptName=QUOTED_IDENTIFIER EOL
+;
+
+AntiMessage : {AntiMessage} ANTIMESSAGE_DEF messageName=QUOTED_IDENTIFIER EOL;
+
+Message: 
+	{Message} MESSAGE_DEF messageName=QUOTED_IDENTIFIER ( ARGS_START arguments=MessageArguments ARGS_END )?  ( ( BLOCK_START ( statements+=InnerBody* |  arrayField=MappedArrayField | arrayMessage=MappedArrayMessage ) BLOCK_END ) | EOL 
+		| TML_START messageArray=MessageArray TML_END
+	)
+;
+
+MessageArray : arrayMessageElements+=MessageArrayElement (ARG_SEP arrayMessageElements+=MessageArrayElement)*;
+
+MessageArrayElement : {MessageArrayElement} BLOCK_START statements+=InnerBody* BLOCK_END;
+
+MessageArgument : ( TYPE_DEF ASSIGNMENT MessageType ) | ( MODE_DEF ASSIGNMENT MessageMode );
+
+MessageArguments : arguments+=MessageArgument ( ARG_SEP arguments+=MessageArgument )*;
+
+Map : {Map} ( MAP_DEF adapterName=IDENTIFIER (ARGS_START arguments=KeyValueArguments? ARGS_END)? | 
+	   MAP_OLDSKOOL_DEF ARGS_START OBJECT_OLDSKOOL_DEF ASSIGNMENT objectName=OBJECT_IDENTIFIER ( ARG_SEP arguments=KeyValueArguments )? ARGS_END) BLOCK_START statements+=InnerBody* BLOCK_END
+;
+
+MethodOrSetter : AdapterMethod | SetterField ;
+
+AdapterMethod: {AdapterMethod} method=METHOD_IDENTIFIER ARGS_START arguments=KeyValueArguments? ARGS_END EOL;
+
+SetterField: {SetterField} field=MAPPABLE_IDENTIFIER  ( ASSIGNMENT expressionList=ConditionalExpressions EOL 
+	  | (ARGS_START arguments=KeyValueArguments ARGS_END)? BLOCK_START mappedArray=MappedArrayMessage BLOCK_END | mappedField=MappedArrayField );
+
+MappedArrayField : {MappedArrayField} field=MAPPABLE_IDENTIFIER ( ARGS_START FILTER_DEF ASSIGNMENT filter=Expression ARGS_END )? BLOCK_START statements+=InnerBody* BLOCK_END ;
+
+MappedArrayMessage : {MappedArrayMessage} message=TML_LITERAL ( ARGS_START FILTER_DEF ASSIGNMENT filter=Expression ARGS_END )? BLOCK_START statements+=InnerBody* BLOCK_END ;
+
+KeyValueArguments : {KeyValueArguments} keyValueArguments+=KeyValueArgument ( ARG_SEP keyValueArguments+=KeyValueArgument )*;
+
+KeyValueArgument : {KeyValueArgument} key=IDENTIFIER ASSIGNMENT value=LiteralOrExpression;
+
+Var: {Var} VAR_DEF varName=IDENTIFIER (arguments=VarArguments)? ( ASSIGNMENT expressionList=ConditionalExpressions EOL |  TML_START varArray=VarArray? TML_END | 
+	BLOCK_START varElements+=VarElement* BLOCK_END  
+ | BLOCK_START mappedArrayField=MappedArrayField BLOCK_END | BLOCK_START mappedArrayMessage=MappedArrayMessage BLOCK_END )
+;
+
+VarArray : {VarArray} vararrayelement+=VarArrayElement (ARG_SEP vararrayelement+=VarArrayElement)*;
+
+VarArrayElement : {VarArrayElement} BLOCK_START (varElements+=VarElement)* BLOCK_END;
+
+VarElement : {VarElement} (IF condition=Expression THEN)? var=Var;
+
+VarArguments: {VarArguments} ARGS_START varArguments+=VarArgument (ARG_SEP varArguments+=VarArgument )* ARGS_END;
+
+VarArgument : {VarArgument} argument=( VarType | VarMode);
+
+VarType: {VarType} TYPE_DEF ASSIGNMENT type=( MessageType | PropertyType ) ;
+
+VarMode : {VarMode} MODE_DEF  ASSIGNMENT mode=MessageMode;
+
+Property : {Property} PROPERTY_DEF propertyName=QUOTED_IDENTIFIER (arguments=PropertyArguments)? 
+	( 
+		   (ASSIGNMENT (expressionList=ConditionalExpressions))? EOL 
+		 | TML_START selectionArray=SelectionArray TML_END   
+		 | BLOCK_START arrayField=MappedArrayField BLOCK_END 
+		 | BLOCK_START arrayMessage=MappedArrayMessage BLOCK_END  
+	)
+;
+
+SelectionArray : arrayElements+=SelectionArrayElement (ARG_SEP arrayElements+=SelectionArrayElement)*;
+
+SelectionArrayElement : {SelectionArrayElement} BLOCK_START innerBody+=InnerBody* BLOCK_END;
+
+Option : OPTION_DEF ( OPTION_NAME_DEF| OPTION_VALUE_DEF | OPTION_SELECTED_DEF )  ASSIGNMENT expressionList=ConditionalExpressions EOL ;
+
+PropertyArguments : {PropertyArguments} ARGS_START (arguments+=PropertyArgument) (ARG_SEP (arguments+=PropertyArgument))* ARGS_END;
+
+PropertyArgument : DirectionArgument | TypeArgument | SubTypeArgument | DescriptionArgument | CardinalityArgument;
+
+DirectionArgument : DIRECTION_DEF ASSIGNMENT (value=( IN_DEF | OUT_DEF | INOUT_DEF ) );
+
+DescriptionArgument : DESCRIPTION_DEF ASSIGNMENT value=LiteralOrExpression;
+
+CardinalityArgument : CARDINALITY_DEF ASSIGNMENT value=('+' | '1');
+
+TypeArgument : TYPE_DEF ASSIGNMENT (value=PropertyType);
+
+SubTypeArgument : SUBTYPE_DEF ASSIGNMENT value=IDENTIFIER;
+
+ConditionalExpressions : {ConditionalExpressions} conditionalExpressions+=ConditionalExpression+ ELSE elseExpresssion=LiteralOrExpression | singleExpression=LiteralOrExpression;
+
+ConditionalExpression :
+	IF condition=Expression THEN expression=LiteralOrExpression;
+
+Expression:
+    BooleanExpression;
+
+BooleanExpression returns Expression:
+    Comparison 
+    (({AndOrExpression.left=current} op=("OR"|"AND")) right=Comparison)*;
+
+Comparison returns Expression:
+       Equals
+       (({Comparison.left=current} op=("<"|">"|"<="|">=") ) right=Equals)*;
+
+Equals returns Expression:
+       Addition 
+       (({Equals.left=current} op=("=="|'!=') ) right=Addition)*;
+ 
+Addition returns Expression:
+    Multiplication
+    (({Plus.left=current} '+' | {Minus.left=current} '-')
+        right=Multiplication)*; 
+
+Multiplication returns Expression:
+    Prefixed (({MultiOrDiv.left=current} op=("*"|"/")) right=Prefixed)*;
+
+Prefixed returns Expression:
+    {BooleanNegation} =>"!" expression=Atomic | 
+    {ArithmeticSigned} =>"-" expression=Atomic | 
+    Atomic;
+
+Atomic returns Expression:
+    {ExpressionLiteral} ARGS_START value=Expression ARGS_END |
+    {NumberLiteral} value=INTEGER |
+    {StringLiteral} value=STRING_LITERAL |
+    {BooleanLiteral} value=( TRUE | FALSE) | 
+    {FunctionCallLiteral} value=FunctionIdentifier |
+    {MappableIdentifierLiteral} value=MappableIdentifier |
+    {TmlIdentifierLiteral} hasExists?='?'? value=TmlIdentifier |
+    {ForAllLiteral} value=ForAllIdentifier |
+    {NullLiteral} value=NULL_DEF
+        ;
+
+ForAllIdentifier:
+	{ForAllIdentifier} op=( FORALL | EXISTS ) ARGS_START "`" (expression=Expression) "`" ARG_SEP (messagedefinition=STRING_LITERAL) ARGS_END 
+;
+
+FunctionIdentifier:
+	{FunctionIdentifier} func=IDENTIFIER (ARGS_START (args+=Expression (ARG_SEP args+=Expression)*)? ARGS_END)
+;
+
+MappableIdentifier:
+	{MappableIdentifier} field=MAPPABLE_IDENTIFIER (ARGS_START (args+=Expression (ARG_SEP args+=Expression)*)? ARGS_END)?
+;
+
+TmlIdentifier :
+  {TmlIdentifier} tml=TML_LITERAL
+;
+
+PropertyType:
+    {IntType} 'integer' |
+    {StringType} 'string' |
+    {BooleanType} 'boolean' | 
+    {DateType} 'date' |
+    {FloatType} 'float' |
+    {BinaryType} 'binary' |
+    {ClockTimeType} 'clocktime' |
+    {MemoType} 'memo' |
+    {TimestampType} 'timestamp' |
+    {PercentageType} 'percentage' |
+    {SelectionType} 'selection'
+;
+
+MessageType : {ArrayType} "array" | {SimpleType} "simple" | {ArrayElementType} "arrayelement";
+
+MessageMode : {Ignore} "ignore" | {Overwrite} "overwrite";
+
+terminal IF: 'if';
+terminal THEN: 'then';
+terminal ELSE: 'else';
+terminal BLOCK_START : '{';
+terminal BLOCK_END : '}';
+
+terminal METHOD_IDENTIFIER: '.' IDENTIFIER;
+
+terminal MAPPABLE_IDENTIFIER: MAPPABLE_ID '../'* IDENTIFIER;
+
+terminal STRING_LITERAL:
+	"'" ( '\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\'|"'") )* "'";	
+
+terminal ARG_SEP : ',';
+terminal FORALL : 'FORALL';
+terminal EXISTS : 'EXISTS';
+terminal ASSIGNMENT : ( "=" | ":" );
+terminal TRUE : 'true';
+terminal FALSE : 'false';
+terminal MAPPABLE_ID : '$';
+terminal EOL : ';';
+terminal ARGS_START : '(';
+terminal ARGS_END : ')';
+terminal TML_START : '[';
+terminal TML_END : ']';
+
+terminal NULL_DEF : 'null';
+terminal PRINT_DEF : 'print';
+terminal LOG_DEF : 'log';
+terminal FINALLY_DEF : 'finally';
+terminal DEFINE_DEF : 'define';
+terminal FILTER_DEF : 'filter';
+terminal SYNCHRONIZED_DEF : 'synchronized';
+terminal LOOP_DEF : 'loop';
+terminal METHODS_DEF : 'methods';
+terminal CODE_DEF : 'code';
+terminal VALIDATIONS_DEF : 'validations';
+terminal CHECK_DEF : "check";
+terminal INCLUDE_DEF : 'include';
+terminal INOUT_DEF : "inout";
+terminal IN_DEF : "in";
+terminal OUT_DEF : "out";
+terminal OPTION_NAME_DEF : "name";
+terminal OPTION_VALUE_DEF : "value";
+terminal OPTION_SELECTED_DEF : "selected";
+terminal DESCRIPTION_DEF : "description";
+terminal TYPE_DEF : "type";
+terminal SUBTYPE_DEF : "subtype";
+terminal MODE_DEF : "mode";
+terminal DIRECTION_DEF : "direction";
+terminal CARDINALITY_DEF : "cardinality";
+terminal MESSAGE_DEF : 'message';
+terminal PROPERTY_DEF : 'property';
+terminal VAR_DEF : "var";
+terminal OPTION_DEF : "option";
+terminal MAP_DEF : "map.";
+terminal MAP_OLDSKOOL_DEF : "map";
+terminal OBJECT_OLDSKOOL_DEF : "object";
+terminal BREAK_DEF : "break";
+terminal ERROR_DEF : "error";
+terminal ANTIMESSAGE_DEF : "antimessage";
+terminal CONTEXT_DEF : "context";
+terminal KEY_DEF : "key";
+terminal TIMEOUT_DEF : "timeout";
+terminal BREAKONNOLOCK_DEF : "breakOnNoLock";
+	
+terminal OBJECT_IDENTIFIER:
+	'"' IDENTIFIER ( '.' IDENTIFIER)+ '"'
+;
+
+terminal QUOTED_IDENTIFIER:
+			'"' ( IDENTIFIER | '/' | '../' )+  '"';
+			
+terminal STRING_CONSTANT:
+			'"' ( '\\' . | !('\\'|'"') )* '"';
+
+terminal TML_LITERAL:
+	'[' ( IDENTIFIER | '/' | '../' | '/@' | '_' )+ ']'
+;
+
+terminal IDENTIFIER : LETTER ( LETTER | DIGIT | "_" )+;
+		
+terminal INTEGER : "0" | ( ( "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ) ( DIGIT )* );
+		
+terminal LETTER : "A" | "B" | "C" | "D" | "E" | "F" | "G"
+ | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+ | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+ | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+ | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+ | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+ | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+ | "x" | "y" | "z";
+
+terminal  DIGIT : "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+terminal ML_COMMENT : '/*' -> '*/';
+
+terminal SL_COMMENT : '//' !('\n'|'\r')* ('\r'? '\n')?;
+
+terminal WS         : (' '|'\t'|'\r'|'\n')+;
+
+//terminal SYMBOL : 
+//    "\n" | "!" | "@" | "$" | "#" | "%" | "^" | "&" | "*" | "(" | ")" | "-" | "_" | 
+//    "=" | "+" | "{" | "}" | "[" | "]" | ":" | ";" | "|" |  "," | "." | "?" | "§" | "±" | "~" | "`" | '"' | '>' | '<'  ;
+
+terminal CHARACTER : LETTER | DIGIT ;
