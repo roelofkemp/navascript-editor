@@ -1,0 +1,4 @@
+The editor can be tested as follows:
+On project "com.dexels.navajo.xtext.navascript" select "Run As" -> "Eclipse Application"
+This will start an Eclipse instance in which the Navascript editor is available.
+This means that you can create a file with .ns extension and it will use the Navascript editor.
