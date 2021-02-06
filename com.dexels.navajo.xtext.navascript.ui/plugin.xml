@@ -9,7 +9,7 @@
 			default="true"
 			extensions="ns"
 			id="com.dexels.navajo.Navascript"
-			name="Navascript Editor">
+			name="Navascript_Editor">
 		</editor>
 	</extension>
 	<extension

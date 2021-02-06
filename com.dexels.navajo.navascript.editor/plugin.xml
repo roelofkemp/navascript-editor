@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+
+ 
+    
    <extension
          id="product"
          point="org.eclipse.core.runtime.products">
@@ -11,6 +14,11 @@
                name="appName"
                value="NavascriptIDE">
          </property>
+         <configuration>
+        <instructions>
+            <_noee>true</_noee>
+        </instructions>
+    </configuration>
       </product>
    </extension>
 

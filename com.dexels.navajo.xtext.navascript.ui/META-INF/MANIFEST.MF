@@ -17,7 +17,6 @@ Require-Bundle: com.dexels.navajo.xtext.navascript,
  org.eclipse.compare,
  org.eclipse.xtext.builder
 Import-Package: org.apache.log4j
-Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.dexels.navajo.ui.contentassist,
  com.dexels.navajo.xtext.navascript.ui.internal,
  com.dexels.navajo.ui.quickfix

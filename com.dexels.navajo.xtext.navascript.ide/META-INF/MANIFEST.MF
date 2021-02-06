@@ -10,7 +10,6 @@ Require-Bundle: com.dexels.navajo.xtext.navascript,
  org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
  org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.dexels.navajo.ide,
  com.dexels.navajo.ide.contentassist.antlr,
  com.dexels.navajo.ide.contentassist.antlr.internal
