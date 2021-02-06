@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Editor
-Bundle-SymbolicName: com.dexels.navajo.navascript.editor;singleton:=true
+Bundle-SymbolicName: com.dexels.navajo.xtext.navascript.editor.product;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: DEXELS
 Automatic-Module-Name: com.dexels.navajo.navascript.editor

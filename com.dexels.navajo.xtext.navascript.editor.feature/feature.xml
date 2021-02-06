@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="com.dexels.navajo.navascript.editor.feature"
+      id="com.dexels.navajo.xtext.navascript.editor.feature"
       label="Navascript 3 Editor"
       version="1.0.0.qualifier"
       provider-name="Dexels BV">
@@ -18,9 +18,9 @@
    </license>
 
    <includes
-         id="com.dexels.navajo.xtext.platform.feature"
+         id="com.dexels.navajo.xtext.navascript.platform.feature"
          version="0.0.0"
-         name="XText Platfom"/>
+         name="XText Platform"/>
 
    <plugin
          id="com.dexels.navajo.xtext.navascript"

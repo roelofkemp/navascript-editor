@@ -17,7 +17,12 @@ Require-Bundle: com.dexels.navajo.xtext.navascript,
  org.eclipse.compare,
  org.eclipse.xtext.builder
 Import-Package: org.apache.log4j
-Export-Package: com.dexels.navajo.ui.contentassist,
- com.dexels.navajo.xtext.navascript.ui.internal,
- com.dexels.navajo.ui.quickfix
+Export-Package: com.dexels.navajo.ui,
+ com.dexels.navajo.ui.contentassist,
+ com.dexels.navajo.ui.labeling,
+ com.dexels.navajo.ui.outline,
+ com.dexels.navajo.ui.quickfix,
+ com.dexels.navajo.ui.syntaxcoloring,
+ com.dexels.navajo.validation,
+ com.dexels.navajo.xtext.navascript.ui.internal
 Bundle-Activator: com.dexels.navajo.xtext.navascript.ui.internal.NavascriptActivator
