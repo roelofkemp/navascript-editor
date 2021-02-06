@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.dexels.navajo.navascript.editor.feature"
+      label="Feature"
+      version="1.0.0.qualifier"
+      provider-name="DEXELS">
+
+   <description url="http://www.example.com/description">
+      Navascript editor
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      Copyright (c) 2021 Dexels BV
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      GPL
+   </license>
+
+   <includes
+         id="com.dexels.navajo.xtext.platform.feature"
+         version="0.0.0"
+         name="XText Platfom"/>
+
+   <plugin
+         id="com.dexels.navajo.xtext.navascript"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.dexels.navajo.xtext.navascript.ide"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.dexels.navajo.xtext.navascript.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
