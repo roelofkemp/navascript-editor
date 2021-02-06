@@ -1,6 +1,13 @@
 # navascript-editor
 XText based Navascript 3 editor
 
+## Prerequisites
+Following Eclipse Plugins are required
+- PDE
+- XText
+
+This source has been tested on Eclipse versions 2020-09 and 2020-12.
+
 ## Export as Eclipse plugin for P2 repository
 Use "Export" and then choose
 
