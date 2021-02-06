@@ -13,8 +13,6 @@ import com.google.inject.Singleton;
 @Singleton
 public class NavascriptTokenToAttributeIdManager extends AbstractAntlrTokenToAttributeIdMapper {
 
-	private static final Pattern QUOTED = Pattern.compile("(?:^'([^']*)'$)|(?:^\"([^\"]*)\")$", Pattern.MULTILINE);
-
 	private static final Pattern PUNCTUATION = Pattern.compile("\\p{Punct}*");
 
 	static String [] typesArray = {
@@ -58,7 +56,8 @@ public class NavascriptTokenToAttributeIdManager extends AbstractAntlrTokenToAtt
 				"RULE_OBJECT_OLDSKOOL_DEF",
 				"RULE_OPTION_NAME_DEF",
 				"RULE_OPTION_VALUE_DEF",
-				"RULE_OPTION_SELECTED_DEF"
+				"RULE_OPTION_SELECTED_DEF",
+				"RULE_BREAK_DEF"
 		};
 	
 	private static Set<String> keywordsSet = new HashSet<>(Arrays.asList(keywordArray));
