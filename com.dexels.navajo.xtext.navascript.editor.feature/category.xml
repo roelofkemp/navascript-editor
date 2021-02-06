@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature id="com.dexels.navajo.xtext.navascript.editor.feature"/>
+   <feature id="com.dexels.navajo.xtext.navascript.editor.feature" version="0.9">
+      <category name="Navascript3IDE"/>
+   </feature>
    <category-def name="Navascript3IDE" label="Navascript 3 Editor"/>
 </site>

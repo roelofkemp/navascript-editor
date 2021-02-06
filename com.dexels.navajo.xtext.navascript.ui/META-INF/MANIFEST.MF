@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Automatic-Module-Name: com.dexels.navajo.xtext.navascript.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: com.dexels.navajo.xtext.navascript.ui
-Bundle-Vendor: My Company
-Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Dexels BV
+Bundle-Version: 0.9
 Bundle-SymbolicName: com.dexels.navajo.xtext.navascript.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.dexels.navajo.xtext.navascript,

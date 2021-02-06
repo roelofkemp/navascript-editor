@@ -13,8 +13,8 @@
       Copyright (c) 2021 Dexels BV
    </copyright>
 
-   <license url="http://www.example.com/license">
-      GPL
+   <license url="https://www.gnu.org/licenses/gpl-3.0.html">
+      GPL 3.0
    </license>
 
    <plugin
@@ -79,12 +79,6 @@
 
    <plugin
          id="javax.inject"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.xml"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
