@@ -3,10 +3,94 @@
  */
 package com.dexels.navajo.ui.contentassist;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.nodemodel.INode;
+import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
+import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+
+import com.dexels.navajo.navascript.impl.MapImpl;
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
+import com.dexels.navajo.xtext.navascript.navajobridge.OSGIRuntime;
 
 /**
  * See https://www.eclipse.org/Xtext/documentation/310_eclipse_support.html#content-assist
  * on how to customize the content assistant.
  */
-public class NavascriptProposalProvider extends AbstractNavascriptProposalProvider {
+public class NavascriptProposalProvider extends AbstractNavascriptProposalProvider implements ServiceListener {
+
+	AdapterInterrogator adapters = null;
+	BundleContext context;
+
+	public NavascriptProposalProvider() {
+		context = OSGIRuntime.getDefaultBundleContext();
+		context.addServiceListener(this);
+	}
+
+	private MapImpl findFirstMap(INode node) {
+
+		if ( node != null ) {
+			EObject e = node.getSemanticElement();
+			if ( e instanceof MapImpl) {
+				return (MapImpl) e;
+			} else {
+				return findFirstMap(node.getParent());
+			}
+		} else {
+			return null;
+		}
+	}
+
+	public synchronized void init() {
+		if ( adapters == null ) {
+			ServiceReference<AdapterInterrogator> ref = context.getServiceReference(AdapterInterrogator.class);
+			adapters = context.getService(ref);
+		}
+	}
+
+	private void createProposals(String [] content, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		
+		for ( String proposal : content ) {
+			acceptor.accept(createCompletionProposal(proposal, context));
+		}
+	}
+	
+	@Override
+	public void completeSetterField_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		if ( map != null ) {
+			String [] methods = adapters.getFields(map.getAdapterName());
+			createProposals(methods, context, acceptor);
+		}
+	}
+
+	@Override
+	public void completeAdapterMethod_Method(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+
+		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		if ( map != null ) {
+			String [] methods = adapters.getMethods(map.getAdapterName());
+			createProposals(methods, context, acceptor);
+		} else {
+			System.err.println("No parent map found");
+		}
+	}
+
+	@Override
+	public void completeMap_AdapterName(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+		String [] list =  adapters.getAdapters();
+		createProposals(list, context, acceptor);
+	}
+
+	@Override
+	public void serviceChanged(ServiceEvent arg0) {
+		init();
+	}
 }

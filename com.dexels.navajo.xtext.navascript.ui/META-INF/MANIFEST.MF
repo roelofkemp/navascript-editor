@@ -16,7 +16,8 @@ Require-Bundle: com.dexels.navajo.xtext.navascript,
  org.eclipse.ui,
  org.eclipse.compare,
  org.eclipse.xtext.builder
-Import-Package: org.apache.log4j
+Import-Package: com.dexels.navajo.xtext.navascript.navajobridge,
+ org.apache.log4j
 Export-Package: com.dexels.navajo.ui,
  com.dexels.navajo.ui.contentassist,
  com.dexels.navajo.ui.labeling,

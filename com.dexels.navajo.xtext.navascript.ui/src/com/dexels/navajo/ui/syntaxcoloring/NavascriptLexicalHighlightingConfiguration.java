@@ -1,5 +1,6 @@
 package com.dexels.navajo.ui.syntaxcoloring;
 
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.HighlightingStyles;
@@ -27,7 +28,11 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 
 	@Override
 	public void configure(IHighlightingConfigurationAcceptor acceptor) {
-		System.err.println("In NavascriptLexicalHighlightingConfiguration.configure()");
+		
+		AdapterInterrogator i = new AdapterInterrogator();
+
+		System.err.println("In NavascriptLexicalHighlightingConfiguration.configure: " + i);
+		
 		acceptor.acceptDefaultHighlighting(KEYWORD_ID, "Keyword", keywordTextStyle());
 		acceptor.acceptDefaultHighlighting(QUOTED_IDENTIFIER_ID, "Quoted Identifier", identifierTextStyle());
 		acceptor.acceptDefaultHighlighting(PUNCTUATION_ID, "Punctuation character", punctuationTextStyle());
@@ -48,7 +53,7 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 	
 	public TextStyle errorTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
-		textStyle.setBackgroundColor(new RGB(255,0,0));
+		textStyle.setColor(new RGB(255,0,0));
 		return textStyle;
 	}
 	

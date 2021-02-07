@@ -3,9 +3,13 @@
  */
 package com.dexels.navajo;
 
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 public class NavascriptRuntimeModule extends AbstractNavascriptRuntimeModule {
+	
+	AdapterInterrogator i;
+	
 }
