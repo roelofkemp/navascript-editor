@@ -12,6 +12,10 @@ import org.eclipse.xtext.ui.label.DefaultDescriptionLabelProvider;
  */
 public class NavascriptDescriptionLabelProvider extends DefaultDescriptionLabelProvider {
 
+	public NavascriptDescriptionLabelProvider() {
+		System.err.println("In NavascriptDescriptionLabelProvider constructor.");
+	}
+	
 	// Labels and icons can be computed like this:
 //	@Override
 //	public String text(IEObjectDescription ele) {

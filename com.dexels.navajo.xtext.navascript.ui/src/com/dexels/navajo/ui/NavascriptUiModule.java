@@ -4,14 +4,20 @@
 package com.dexels.navajo.ui;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.xtext.documentation.IEObjectDocumentationProvider;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.AbstractAntlrTokenToAttributeIdMapper;
 import org.eclipse.xtext.resource.containers.IAllContainersState;
+import org.eclipse.xtext.ui.editor.hover.DispatchingEObjectTextHover;
+import org.eclipse.xtext.ui.editor.hover.IEObjectHover;
+import org.eclipse.xtext.ui.editor.hover.IEObjectHoverProvider;
 import org.eclipse.xtext.ui.editor.model.IResourceForEditorInputFactory;
 import org.eclipse.xtext.ui.editor.model.ResourceForIEditorInputFactory;
 import org.eclipse.xtext.ui.editor.syntaxcoloring.IHighlightingConfiguration;
 import org.eclipse.xtext.ui.resource.IResourceSetProvider;
 import org.eclipse.xtext.ui.resource.SimpleResourceSetProvider;
 
+import com.dexels.navajo.ui.hover.NavascriptDocumentationProvider;
+import com.dexels.navajo.ui.hover.NavascriptHoverProvider;
 import com.dexels.navajo.ui.syntaxcoloring.NavascriptLexicalHighlightingConfiguration;
 import com.dexels.navajo.ui.syntaxcoloring.NavascriptTokenToAttributeIdManager;
 import com.google.inject.Provider;
@@ -34,6 +40,18 @@ public class NavascriptUiModule extends AbstractNavascriptUiModule {
 		return NavascriptTokenToAttributeIdManager.class;
 	}
 
+//	public Class<? extends IEObjectHover> bindIEObjectHover() {
+//		return NavascriptHoverProvider.class;
+//	}
+//	
+//	public Class<? extends DispatchingEObjectTextHover> bindDispatchingEObjectTextHover() {
+//		return NavascriptHoverProvider.class;
+//	}
+//	
+//	public Class<? extends IEObjectDocumentationProvider> bindIEObjectDocumentationProviderr() {
+//        return NavascriptDocumentationProvider.class;
+//    }
+	
 	/**
 	 * Stuff to get rid of JDT dependency
 	 */

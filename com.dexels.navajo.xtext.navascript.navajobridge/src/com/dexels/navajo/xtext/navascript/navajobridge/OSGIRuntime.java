@@ -12,7 +12,6 @@ public class OSGIRuntime extends Plugin {
 	public void start(BundleContext arg0) throws Exception {
 		super.start(arg0);
 		bundleContext = arg0;
-		System.err.println("============= Connected to OSGi Runtime ===================");
 	}
 
 	@Override
