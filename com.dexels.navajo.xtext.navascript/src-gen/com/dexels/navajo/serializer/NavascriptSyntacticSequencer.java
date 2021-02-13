@@ -26,7 +26,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 	protected AbstractElementAlias match_Map___ARGS_STARTTerminalRuleCall_1_0_2_0_ARGS_ENDTerminalRuleCall_1_0_2_2__q;
 	protected AbstractElementAlias match_MappableIdentifier___ARGS_STARTTerminalRuleCall_2_0_ARGS_ENDTerminalRuleCall_2_2__q;
 	protected AbstractElementAlias match_Message_EOLTerminalRuleCall_4_1_or___BLOCK_STARTTerminalRuleCall_4_0_0_BLOCK_ENDTerminalRuleCall_4_0_2__;
-	protected AbstractElementAlias match_Option_OPTION_NAME_DEFTerminalRuleCall_1_0_or_OPTION_SELECTED_DEFTerminalRuleCall_1_2_or_OPTION_VALUE_DEFTerminalRuleCall_1_1;
 	protected AbstractElementAlias match_SBreakOnNoLock_STimeout___BREAKONNOLOCK_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1___or___TIMEOUT_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1__;
 	protected AbstractElementAlias match_Var___BLOCK_STARTTerminalRuleCall_4_2_0_BLOCK_ENDTerminalRuleCall_4_2_2___or___TML_STARTTerminalRuleCall_4_1_0_TML_ENDTerminalRuleCall_4_1_2__;
 	
@@ -37,7 +36,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 		match_Map___ARGS_STARTTerminalRuleCall_1_0_2_0_ARGS_ENDTerminalRuleCall_1_0_2_2__q = new GroupAlias(false, true, new TokenAlias(false, false, grammarAccess.getMapAccess().getARGS_STARTTerminalRuleCall_1_0_2_0()), new TokenAlias(false, false, grammarAccess.getMapAccess().getARGS_ENDTerminalRuleCall_1_0_2_2()));
 		match_MappableIdentifier___ARGS_STARTTerminalRuleCall_2_0_ARGS_ENDTerminalRuleCall_2_2__q = new GroupAlias(false, true, new TokenAlias(false, false, grammarAccess.getMappableIdentifierAccess().getARGS_STARTTerminalRuleCall_2_0()), new TokenAlias(false, false, grammarAccess.getMappableIdentifierAccess().getARGS_ENDTerminalRuleCall_2_2()));
 		match_Message_EOLTerminalRuleCall_4_1_or___BLOCK_STARTTerminalRuleCall_4_0_0_BLOCK_ENDTerminalRuleCall_4_0_2__ = new AlternativeAlias(false, false, new GroupAlias(false, false, new TokenAlias(false, false, grammarAccess.getMessageAccess().getBLOCK_STARTTerminalRuleCall_4_0_0()), new TokenAlias(false, false, grammarAccess.getMessageAccess().getBLOCK_ENDTerminalRuleCall_4_0_2())), new TokenAlias(false, false, grammarAccess.getMessageAccess().getEOLTerminalRuleCall_4_1()));
-		match_Option_OPTION_NAME_DEFTerminalRuleCall_1_0_or_OPTION_SELECTED_DEFTerminalRuleCall_1_2_or_OPTION_VALUE_DEFTerminalRuleCall_1_1 = new AlternativeAlias(false, false, new TokenAlias(false, false, grammarAccess.getOptionAccess().getOPTION_NAME_DEFTerminalRuleCall_1_0()), new TokenAlias(false, false, grammarAccess.getOptionAccess().getOPTION_SELECTED_DEFTerminalRuleCall_1_2()), new TokenAlias(false, false, grammarAccess.getOptionAccess().getOPTION_VALUE_DEFTerminalRuleCall_1_1()));
 		match_SBreakOnNoLock_STimeout___BREAKONNOLOCK_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1___or___TIMEOUT_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1__ = new AlternativeAlias(false, false, new GroupAlias(false, false, new TokenAlias(false, false, grammarAccess.getSBreakOnNoLockAccess().getBREAKONNOLOCK_DEFTerminalRuleCall_0()), new TokenAlias(false, false, grammarAccess.getSBreakOnNoLockAccess().getASSIGNMENTTerminalRuleCall_1())), new GroupAlias(false, false, new TokenAlias(false, false, grammarAccess.getSTimeoutAccess().getTIMEOUT_DEFTerminalRuleCall_0()), new TokenAlias(false, false, grammarAccess.getSTimeoutAccess().getASSIGNMENTTerminalRuleCall_1())));
 		match_Var___BLOCK_STARTTerminalRuleCall_4_2_0_BLOCK_ENDTerminalRuleCall_4_2_2___or___TML_STARTTerminalRuleCall_4_1_0_TML_ENDTerminalRuleCall_4_1_2__ = new AlternativeAlias(false, false, new GroupAlias(false, false, new TokenAlias(false, false, grammarAccess.getVarAccess().getBLOCK_STARTTerminalRuleCall_4_2_0()), new TokenAlias(false, false, grammarAccess.getVarAccess().getBLOCK_ENDTerminalRuleCall_4_2_2())), new GroupAlias(false, false, new TokenAlias(false, false, grammarAccess.getVarAccess().getTML_STARTTerminalRuleCall_4_1_0()), new TokenAlias(false, false, grammarAccess.getVarAccess().getTML_ENDTerminalRuleCall_4_1_2())));
 	}
@@ -108,12 +106,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 			return getOBJECT_OLDSKOOL_DEFToken(semanticObject, ruleCall, node);
 		else if (ruleCall.getRule() == grammarAccess.getOPTION_DEFRule())
 			return getOPTION_DEFToken(semanticObject, ruleCall, node);
-		else if (ruleCall.getRule() == grammarAccess.getOPTION_NAME_DEFRule())
-			return getOPTION_NAME_DEFToken(semanticObject, ruleCall, node);
-		else if (ruleCall.getRule() == grammarAccess.getOPTION_SELECTED_DEFRule())
-			return getOPTION_SELECTED_DEFToken(semanticObject, ruleCall, node);
-		else if (ruleCall.getRule() == grammarAccess.getOPTION_VALUE_DEFRule())
-			return getOPTION_VALUE_DEFToken(semanticObject, ruleCall, node);
 		else if (ruleCall.getRule() == grammarAccess.getPRINT_DEFRule())
 			return getPRINT_DEFToken(semanticObject, ruleCall, node);
 		else if (ruleCall.getRule() == grammarAccess.getPROPERTY_DEFRule())
@@ -430,33 +422,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 	}
 	
 	/**
-	 * terminal OPTION_NAME_DEF : "name";
-	 */
-	protected String getOPTION_NAME_DEFToken(EObject semanticObject, RuleCall ruleCall, INode node) {
-		if (node != null)
-			return getTokenText(node);
-		return "name";
-	}
-	
-	/**
-	 * terminal OPTION_SELECTED_DEF : "selected";
-	 */
-	protected String getOPTION_SELECTED_DEFToken(EObject semanticObject, RuleCall ruleCall, INode node) {
-		if (node != null)
-			return getTokenText(node);
-		return "selected";
-	}
-	
-	/**
-	 * terminal OPTION_VALUE_DEF : "value";
-	 */
-	protected String getOPTION_VALUE_DEFToken(EObject semanticObject, RuleCall ruleCall, INode node) {
-		if (node != null)
-			return getTokenText(node);
-		return "value";
-	}
-	
-	/**
 	 * terminal PRINT_DEF : 'print';
 	 */
 	protected String getPRINT_DEFToken(EObject semanticObject, RuleCall ruleCall, INode node) {
@@ -578,8 +543,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 				emit_MappableIdentifier___ARGS_STARTTerminalRuleCall_2_0_ARGS_ENDTerminalRuleCall_2_2__q(semanticObject, getLastNavigableState(), syntaxNodes);
 			else if (match_Message_EOLTerminalRuleCall_4_1_or___BLOCK_STARTTerminalRuleCall_4_0_0_BLOCK_ENDTerminalRuleCall_4_0_2__.equals(syntax))
 				emit_Message_EOLTerminalRuleCall_4_1_or___BLOCK_STARTTerminalRuleCall_4_0_0_BLOCK_ENDTerminalRuleCall_4_0_2__(semanticObject, getLastNavigableState(), syntaxNodes);
-			else if (match_Option_OPTION_NAME_DEFTerminalRuleCall_1_0_or_OPTION_SELECTED_DEFTerminalRuleCall_1_2_or_OPTION_VALUE_DEFTerminalRuleCall_1_1.equals(syntax))
-				emit_Option_OPTION_NAME_DEFTerminalRuleCall_1_0_or_OPTION_SELECTED_DEFTerminalRuleCall_1_2_or_OPTION_VALUE_DEFTerminalRuleCall_1_1(semanticObject, getLastNavigableState(), syntaxNodes);
 			else if (match_SBreakOnNoLock_STimeout___BREAKONNOLOCK_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1___or___TIMEOUT_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1__.equals(syntax))
 				emit_SBreakOnNoLock_STimeout___BREAKONNOLOCK_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1___or___TIMEOUT_DEFTerminalRuleCall_0_ASSIGNMENTTerminalRuleCall_1__(semanticObject, getLastNavigableState(), syntaxNodes);
 			else if (match_Var___BLOCK_STARTTerminalRuleCall_4_2_0_BLOCK_ENDTerminalRuleCall_4_2_2___or___TML_STARTTerminalRuleCall_4_1_0_TML_ENDTerminalRuleCall_4_1_2__.equals(syntax))
@@ -631,17 +594,6 @@ public class NavascriptSyntacticSequencer extends AbstractSyntacticSequencer {
 	 *     messageName=QUOTED_IDENTIFIER (ambiguity) (rule end)
 	 */
 	protected void emit_Message_EOLTerminalRuleCall_4_1_or___BLOCK_STARTTerminalRuleCall_4_0_0_BLOCK_ENDTerminalRuleCall_4_0_2__(EObject semanticObject, ISynNavigable transition, List<INode> nodes) {
-		acceptNodes(transition, nodes);
-	}
-	
-	/**
-	 * Ambiguous syntax:
-	 *     OPTION_NAME_DEF | OPTION_VALUE_DEF | OPTION_SELECTED_DEF
-	 *
-	 * This ambiguous syntax occurs at:
-	 *     (rule start) OPTION_DEF (ambiguity) ASSIGNMENT expressionList=ConditionalExpressions
-	 */
-	protected void emit_Option_OPTION_NAME_DEFTerminalRuleCall_1_0_or_OPTION_SELECTED_DEFTerminalRuleCall_1_2_or_OPTION_VALUE_DEFTerminalRuleCall_1_1(EObject semanticObject, ISynNavigable transition, List<INode> nodes) {
 		acceptNodes(transition, nodes);
 	}
 	

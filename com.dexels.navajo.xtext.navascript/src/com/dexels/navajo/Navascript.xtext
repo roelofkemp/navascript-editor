@@ -127,7 +127,7 @@ MappedArrayMessage : {MappedArrayMessage} message=TML_LITERAL ( ARGS_START FILTE
 
 KeyValueArguments : {KeyValueArguments} keyValueArguments+=KeyValueArgument ( ARG_SEP keyValueArguments+=KeyValueArgument )*;
 
-KeyValueArgument : {KeyValueArgument} key=IDENTIFIER ASSIGNMENT value=LiteralOrExpression;
+KeyValueArgument : {KeyValueArgument} key=(IDENTIFIER | OPTION_TYPE) ASSIGNMENT value=LiteralOrExpression;
 
 Var: {Var} VAR_DEF varName=IDENTIFIER (arguments=VarArguments)? ( ASSIGNMENT expressionList=ConditionalExpressions EOL |  TML_START varArray=VarArray? TML_END | 
 	BLOCK_START varElements+=VarElement* BLOCK_END  
@@ -161,7 +161,7 @@ SelectionArray : arrayElements+=SelectionArrayElement (ARG_SEP arrayElements+=Se
 
 SelectionArrayElement : {SelectionArrayElement} BLOCK_START innerBody+=InnerBody* BLOCK_END;
 
-Option : OPTION_DEF ( OPTION_NAME_DEF| OPTION_VALUE_DEF | OPTION_SELECTED_DEF )  ASSIGNMENT expressionList=ConditionalExpressions EOL ;
+Option : OPTION_DEF option=OPTION_TYPE  ASSIGNMENT expressionList=ConditionalExpressions EOL ;
 
 PropertyArguments : {PropertyArguments} ARGS_START (arguments+=PropertyArgument) (ARG_SEP (arguments+=PropertyArgument))* ARGS_END;
 
@@ -252,6 +252,9 @@ PropertyType:
     {SelectionType} 'selection'
 ;
 
+OPTION_TYPE : 
+   'name' | 'value' | 'selected';
+
 MessageType : {ArrayType} "array" | {SimpleType} "simple" | {ArrayElementType} "arrayelement";
 
 MessageMode : {Ignore} "ignore" | {Overwrite} "overwrite";
@@ -298,9 +301,6 @@ terminal INCLUDE_DEF : 'include';
 terminal INOUT_DEF : "inout";
 terminal IN_DEF : "in";
 terminal OUT_DEF : "out";
-terminal OPTION_NAME_DEF : "name";
-terminal OPTION_VALUE_DEF : "value";
-terminal OPTION_SELECTED_DEF : "selected";
 terminal DESCRIPTION_DEF : "description";
 terminal TYPE_DEF : "type";
 terminal SUBTYPE_DEF : "subtype";

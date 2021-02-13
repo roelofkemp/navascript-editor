@@ -1828,13 +1828,22 @@ public interface NavascriptPackage extends EPackage
   int OPTION = 50;
 
   /**
+   * The feature id for the '<em><b>Option</b></em>' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int OPTION__OPTION = 0;
+
+  /**
    * The feature id for the '<em><b>Expression List</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @generated
    * @ordered
    */
-  int OPTION__EXPRESSION_LIST = 0;
+  int OPTION__EXPRESSION_LIST = 1;
 
   /**
    * The number of structural features of the '<em>Option</em>' class.
@@ -1843,7 +1852,7 @@ public interface NavascriptPackage extends EPackage
    * @generated
    * @ordered
    */
-  int OPTION_FEATURE_COUNT = 1;
+  int OPTION_FEATURE_COUNT = 2;
 
   /**
    * The meta object id for the '{@link com.dexels.navajo.navascript.impl.PropertyArgumentsImpl <em>Property Arguments</em>}' class.
@@ -4676,6 +4685,17 @@ public interface NavascriptPackage extends EPackage
   EClass getOption();
 
   /**
+   * Returns the meta object for the attribute '{@link com.dexels.navajo.navascript.Option#getOption <em>Option</em>}'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return the meta object for the attribute '<em>Option</em>'.
+   * @see com.dexels.navajo.navascript.Option#getOption()
+   * @see #getOption()
+   * @generated
+   */
+  EAttribute getOption_Option();
+
+  /**
    * Returns the meta object for the containment reference '{@link com.dexels.navajo.navascript.Option#getExpressionList <em>Expression List</em>}'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -6923,6 +6943,14 @@ public interface NavascriptPackage extends EPackage
      * @generated
      */
     EClass OPTION = eINSTANCE.getOption();
+
+    /**
+     * The meta object literal for the '<em><b>Option</b></em>' attribute feature.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    EAttribute OPTION__OPTION = eINSTANCE.getOption_Option();
 
     /**
      * The meta object literal for the '<em><b>Expression List</b></em>' containment reference feature.

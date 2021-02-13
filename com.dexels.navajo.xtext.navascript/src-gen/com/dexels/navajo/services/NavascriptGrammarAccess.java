@@ -2017,26 +2017,34 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 		private final Group cGroup = (Group)rule.eContents().get(1);
 		private final Action cKeyValueArgumentAction_0 = (Action)cGroup.eContents().get(0);
 		private final Assignment cKeyAssignment_1 = (Assignment)cGroup.eContents().get(1);
-		private final RuleCall cKeyIDENTIFIERTerminalRuleCall_1_0 = (RuleCall)cKeyAssignment_1.eContents().get(0);
+		private final Alternatives cKeyAlternatives_1_0 = (Alternatives)cKeyAssignment_1.eContents().get(0);
+		private final RuleCall cKeyIDENTIFIERTerminalRuleCall_1_0_0 = (RuleCall)cKeyAlternatives_1_0.eContents().get(0);
+		private final RuleCall cKeyOPTION_TYPEParserRuleCall_1_0_1 = (RuleCall)cKeyAlternatives_1_0.eContents().get(1);
 		private final RuleCall cASSIGNMENTTerminalRuleCall_2 = (RuleCall)cGroup.eContents().get(2);
 		private final Assignment cValueAssignment_3 = (Assignment)cGroup.eContents().get(3);
 		private final RuleCall cValueLiteralOrExpressionParserRuleCall_3_0 = (RuleCall)cValueAssignment_3.eContents().get(0);
 		
 		//KeyValueArgument:
-		//	{KeyValueArgument} key=IDENTIFIER ASSIGNMENT value=LiteralOrExpression;
+		//	{KeyValueArgument} key=(IDENTIFIER | OPTION_TYPE) ASSIGNMENT value=LiteralOrExpression;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//{KeyValueArgument} key=IDENTIFIER ASSIGNMENT value=LiteralOrExpression
+		//{KeyValueArgument} key=(IDENTIFIER | OPTION_TYPE) ASSIGNMENT value=LiteralOrExpression
 		public Group getGroup() { return cGroup; }
 		
 		//{KeyValueArgument}
 		public Action getKeyValueArgumentAction_0() { return cKeyValueArgumentAction_0; }
 		
-		//key=IDENTIFIER
+		//key=(IDENTIFIER | OPTION_TYPE)
 		public Assignment getKeyAssignment_1() { return cKeyAssignment_1; }
 		
+		//(IDENTIFIER | OPTION_TYPE)
+		public Alternatives getKeyAlternatives_1_0() { return cKeyAlternatives_1_0; }
+		
 		//IDENTIFIER
-		public RuleCall getKeyIDENTIFIERTerminalRuleCall_1_0() { return cKeyIDENTIFIERTerminalRuleCall_1_0; }
+		public RuleCall getKeyIDENTIFIERTerminalRuleCall_1_0_0() { return cKeyIDENTIFIERTerminalRuleCall_1_0_0; }
+		
+		//OPTION_TYPE
+		public RuleCall getKeyOPTION_TYPEParserRuleCall_1_0_1() { return cKeyOPTION_TYPEParserRuleCall_1_0_1; }
 		
 		//ASSIGNMENT
 		public RuleCall getASSIGNMENTTerminalRuleCall_2() { return cASSIGNMENTTerminalRuleCall_2; }
@@ -2658,38 +2666,28 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.Option");
 		private final Group cGroup = (Group)rule.eContents().get(1);
 		private final RuleCall cOPTION_DEFTerminalRuleCall_0 = (RuleCall)cGroup.eContents().get(0);
-		private final Alternatives cAlternatives_1 = (Alternatives)cGroup.eContents().get(1);
-		private final RuleCall cOPTION_NAME_DEFTerminalRuleCall_1_0 = (RuleCall)cAlternatives_1.eContents().get(0);
-		private final RuleCall cOPTION_VALUE_DEFTerminalRuleCall_1_1 = (RuleCall)cAlternatives_1.eContents().get(1);
-		private final RuleCall cOPTION_SELECTED_DEFTerminalRuleCall_1_2 = (RuleCall)cAlternatives_1.eContents().get(2);
+		private final Assignment cOptionAssignment_1 = (Assignment)cGroup.eContents().get(1);
+		private final RuleCall cOptionOPTION_TYPEParserRuleCall_1_0 = (RuleCall)cOptionAssignment_1.eContents().get(0);
 		private final RuleCall cASSIGNMENTTerminalRuleCall_2 = (RuleCall)cGroup.eContents().get(2);
 		private final Assignment cExpressionListAssignment_3 = (Assignment)cGroup.eContents().get(3);
 		private final RuleCall cExpressionListConditionalExpressionsParserRuleCall_3_0 = (RuleCall)cExpressionListAssignment_3.eContents().get(0);
 		private final RuleCall cEOLTerminalRuleCall_4 = (RuleCall)cGroup.eContents().get(4);
 		
 		//Option:
-		//	OPTION_DEF (OPTION_NAME_DEF | OPTION_VALUE_DEF | OPTION_SELECTED_DEF) ASSIGNMENT
-		//	expressionList=ConditionalExpressions EOL;
+		//	OPTION_DEF option=OPTION_TYPE ASSIGNMENT expressionList=ConditionalExpressions EOL;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//OPTION_DEF (OPTION_NAME_DEF | OPTION_VALUE_DEF | OPTION_SELECTED_DEF) ASSIGNMENT expressionList=ConditionalExpressions
-		//EOL
+		//OPTION_DEF option=OPTION_TYPE ASSIGNMENT expressionList=ConditionalExpressions EOL
 		public Group getGroup() { return cGroup; }
 		
 		//OPTION_DEF
 		public RuleCall getOPTION_DEFTerminalRuleCall_0() { return cOPTION_DEFTerminalRuleCall_0; }
 		
-		//(OPTION_NAME_DEF | OPTION_VALUE_DEF | OPTION_SELECTED_DEF)
-		public Alternatives getAlternatives_1() { return cAlternatives_1; }
+		//option=OPTION_TYPE
+		public Assignment getOptionAssignment_1() { return cOptionAssignment_1; }
 		
-		//OPTION_NAME_DEF
-		public RuleCall getOPTION_NAME_DEFTerminalRuleCall_1_0() { return cOPTION_NAME_DEFTerminalRuleCall_1_0; }
-		
-		//OPTION_VALUE_DEF
-		public RuleCall getOPTION_VALUE_DEFTerminalRuleCall_1_1() { return cOPTION_VALUE_DEFTerminalRuleCall_1_1; }
-		
-		//OPTION_SELECTED_DEF
-		public RuleCall getOPTION_SELECTED_DEFTerminalRuleCall_1_2() { return cOPTION_SELECTED_DEFTerminalRuleCall_1_2; }
+		//OPTION_TYPE
+		public RuleCall getOptionOPTION_TYPEParserRuleCall_1_0() { return cOptionOPTION_TYPEParserRuleCall_1_0; }
 		
 		//ASSIGNMENT
 		public RuleCall getASSIGNMENTTerminalRuleCall_2() { return cASSIGNMENTTerminalRuleCall_2; }
@@ -3903,6 +3901,29 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 		//'selection'
 		public Keyword getSelectionKeyword_10_1() { return cSelectionKeyword_10_1; }
 	}
+	public class OPTION_TYPEElements extends AbstractParserRuleElementFinder {
+		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.OPTION_TYPE");
+		private final Alternatives cAlternatives = (Alternatives)rule.eContents().get(1);
+		private final Keyword cNameKeyword_0 = (Keyword)cAlternatives.eContents().get(0);
+		private final Keyword cValueKeyword_1 = (Keyword)cAlternatives.eContents().get(1);
+		private final Keyword cSelectedKeyword_2 = (Keyword)cAlternatives.eContents().get(2);
+		
+		//OPTION_TYPE:
+		//	'name' | 'value' | 'selected';
+		@Override public ParserRule getRule() { return rule; }
+		
+		//'name' | 'value' | 'selected'
+		public Alternatives getAlternatives() { return cAlternatives; }
+		
+		//'name'
+		public Keyword getNameKeyword_0() { return cNameKeyword_0; }
+		
+		//'value'
+		public Keyword getValueKeyword_1() { return cValueKeyword_1; }
+		
+		//'selected'
+		public Keyword getSelectedKeyword_2() { return cSelectedKeyword_2; }
+	}
 	public class MessageTypeElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.MessageType");
 		private final Alternatives cAlternatives = (Alternatives)rule.eContents().get(1);
@@ -4062,6 +4083,7 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	private final MappableIdentifierElements pMappableIdentifier;
 	private final TmlIdentifierElements pTmlIdentifier;
 	private final PropertyTypeElements pPropertyType;
+	private final OPTION_TYPEElements pOPTION_TYPE;
 	private final MessageTypeElements pMessageType;
 	private final MessageModeElements pMessageMode;
 	private final TerminalRule tIF;
@@ -4100,9 +4122,6 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	private final TerminalRule tINOUT_DEF;
 	private final TerminalRule tIN_DEF;
 	private final TerminalRule tOUT_DEF;
-	private final TerminalRule tOPTION_NAME_DEF;
-	private final TerminalRule tOPTION_VALUE_DEF;
-	private final TerminalRule tOPTION_SELECTED_DEF;
 	private final TerminalRule tDESCRIPTION_DEF;
 	private final TerminalRule tTYPE_DEF;
 	private final TerminalRule tSUBTYPE_DEF;
@@ -4216,6 +4235,7 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 		this.pMappableIdentifier = new MappableIdentifierElements();
 		this.pTmlIdentifier = new TmlIdentifierElements();
 		this.pPropertyType = new PropertyTypeElements();
+		this.pOPTION_TYPE = new OPTION_TYPEElements();
 		this.pMessageType = new MessageTypeElements();
 		this.pMessageMode = new MessageModeElements();
 		this.tIF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.IF");
@@ -4254,9 +4274,6 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 		this.tINOUT_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.INOUT_DEF");
 		this.tIN_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.IN_DEF");
 		this.tOUT_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.OUT_DEF");
-		this.tOPTION_NAME_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.OPTION_NAME_DEF");
-		this.tOPTION_VALUE_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.OPTION_VALUE_DEF");
-		this.tOPTION_SELECTED_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.OPTION_SELECTED_DEF");
 		this.tDESCRIPTION_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.DESCRIPTION_DEF");
 		this.tTYPE_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.TYPE_DEF");
 		this.tSUBTYPE_DEF = (TerminalRule) GrammarUtil.findRuleForName(getGrammar(), "com.dexels.navajo.Navascript.SUBTYPE_DEF");
@@ -4744,7 +4761,7 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	}
 	
 	//KeyValueArgument:
-	//	{KeyValueArgument} key=IDENTIFIER ASSIGNMENT value=LiteralOrExpression;
+	//	{KeyValueArgument} key=(IDENTIFIER | OPTION_TYPE) ASSIGNMENT value=LiteralOrExpression;
 	public KeyValueArgumentElements getKeyValueArgumentAccess() {
 		return pKeyValueArgument;
 	}
@@ -4871,8 +4888,7 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	}
 	
 	//Option:
-	//	OPTION_DEF (OPTION_NAME_DEF | OPTION_VALUE_DEF | OPTION_SELECTED_DEF) ASSIGNMENT
-	//	expressionList=ConditionalExpressions EOL;
+	//	OPTION_DEF option=OPTION_TYPE ASSIGNMENT expressionList=ConditionalExpressions EOL;
 	public OptionElements getOptionAccess() {
 		return pOption;
 	}
@@ -5106,6 +5122,16 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	
 	public ParserRule getPropertyTypeRule() {
 		return getPropertyTypeAccess().getRule();
+	}
+	
+	//OPTION_TYPE:
+	//	'name' | 'value' | 'selected';
+	public OPTION_TYPEElements getOPTION_TYPEAccess() {
+		return pOPTION_TYPE;
+	}
+	
+	public ParserRule getOPTION_TYPERule() {
+		return getOPTION_TYPEAccess().getRule();
 	}
 	
 	//MessageType:
@@ -5342,24 +5368,6 @@ public class NavascriptGrammarAccess extends AbstractElementFinder.AbstractGramm
 	//	"out";
 	public TerminalRule getOUT_DEFRule() {
 		return tOUT_DEF;
-	}
-	
-	//terminal OPTION_NAME_DEF:
-	//	"name";
-	public TerminalRule getOPTION_NAME_DEFRule() {
-		return tOPTION_NAME_DEF;
-	}
-	
-	//terminal OPTION_VALUE_DEF:
-	//	"value";
-	public TerminalRule getOPTION_VALUE_DEFRule() {
-		return tOPTION_VALUE_DEF;
-	}
-	
-	//terminal OPTION_SELECTED_DEF:
-	//	"selected";
-	public TerminalRule getOPTION_SELECTED_DEFRule() {
-		return tOPTION_SELECTED_DEF;
 	}
 	
 	//terminal DESCRIPTION_DEF:

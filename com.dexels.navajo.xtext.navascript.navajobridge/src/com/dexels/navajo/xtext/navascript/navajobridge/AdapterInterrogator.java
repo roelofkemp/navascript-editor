@@ -8,16 +8,15 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
-import com.dexels.navajo.xtext.navascript.navajobridge.stub.AdapterDefinition;
-import com.dexels.navajo.xtext.navascript.navajobridge.stub.MethodDefinition;
-import com.dexels.navajo.xtext.navascript.navajobridge.stub.ValueDefinition;
+import com.dexels.navajo.mapping.compiler.meta.MapDefinition;
 
 public class AdapterInterrogator implements EventHandler {
 
 	public final static String FETCH_ADAPTERS = "adapter_fetch";
 	public final static String ADAPTER_OVERVIEW = "adapter_overview";
-
-	Map<String, AdapterDefinition> myAdapters = null;
+	
+	Map<String, MapDefinitionExtended> myAdapters = null;
+	Map<String, FunctionDefinition> myFunctions = null;
 
 	private EventAdmin myEventAdmin;
 
@@ -37,6 +36,14 @@ public class AdapterInterrogator implements EventHandler {
 
 	}
 
+	public MapDefinitionExtended getAdapter(String s) {
+		return myAdapters.get(s);
+	}
+
+	public FunctionDefinition getFunction(String s) {
+		return myFunctions.get(s);
+	}
+	
 	public String [] getAdapters() {
 
 		if ( myAdapters != null ) {
@@ -50,17 +57,55 @@ public class AdapterInterrogator implements EventHandler {
 			return null;
 		}
 	}
+	
+	public String [] getFunctions() {
 
+		if ( myFunctions != null ) {
+
+			Set<String> keySet = myFunctions.keySet();
+			String [] functions = new String[keySet.size()];
+			functions = (String []) keySet.toArray(functions);
+
+			return functions;
+		} else {
+			return null;
+		}
+	}
+	
 	public String [] getFields (String adapter) {
 
-		AdapterDefinition ad = myAdapters.get(adapter);
+		System.err.println("AdapterInerrogator.getFields: " + adapter);
+
+		MapDefinition ad = myAdapters.get(adapter).getMapDefinition();
 		if ( ad != null ) {
-			
-			ValueDefinition [] values = ad.fields;
-			String [] asString = new String[values.length];
+
+			Set<String> values = ad.getValueDefinitions();
+			String [] asString = new String[values.size()];
 			int index = 0;
-			for ( ValueDefinition vd: values ) {
-				asString[index++] = "$" + vd.name;
+			for ( String  vd: values ) {
+				if ( vd != null && !"null".equals(vd) && myAdapters.get(adapter).isSetter(vd) ) {
+					asString[index++] = vd;
+				}
+			}
+			return asString;
+		}
+		return null;
+	}
+	
+	public String [] getGetters (String adapter) {
+
+		System.err.println("AdapterInerrogator.getGetters: " + adapter);
+
+		MapDefinitionExtended ad = myAdapters.get(adapter);
+		if ( ad != null ) {
+
+			Set<String> values = ad.getGetters();
+			String [] asString = new String[values.size()];
+			int index = 0;
+			for ( String  vd: values ) {
+				if ( vd != null && !"null".equals(vd) && myAdapters.get(adapter).isGetter(vd) ) {
+					asString[index++] = vd;
+				}
 			}
 			return asString;
 		}
@@ -69,14 +114,16 @@ public class AdapterInterrogator implements EventHandler {
 
 	public String [] getMethods (String adapter) {
 
-		AdapterDefinition ad = myAdapters.get(adapter);
+		System.err.println("AdapterInerrogator.getMethods: " + adapter + " [" + myAdapters.get(adapter) + "]");
+
+		MapDefinition ad = myAdapters.get(adapter).getMapDefinition();
 		if ( ad != null ) {
-			
-			MethodDefinition [] values = ad.methods;
-			String [] asString = new String[values.length];
+
+			Set<String> values = ad.getMethodDefinitions();
+			String [] asString = new String[values.size()];
 			int index = 0;
-			for ( MethodDefinition md: values ) {
-				asString[index++] = "." + md.name;
+			for ( String md: values ) {
+				asString[index++] = "." + md;
 			}
 			return asString;
 		}
@@ -86,7 +133,8 @@ public class AdapterInterrogator implements EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		if ( event.getTopic().equals(ADAPTER_OVERVIEW)) {
-			myAdapters =  (Map<String, AdapterDefinition>) event.getProperty("overview");
+			myAdapters =  (Map<String, MapDefinitionExtended>) event.getProperty("adapters");
+			myFunctions =  (Map<String, FunctionDefinition>) event.getProperty("functions");
 		}
 	}
 }

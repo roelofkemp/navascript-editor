@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  * The following features are implemented:
  * </p>
  * <ul>
+ *   <li>{@link com.dexels.navajo.navascript.impl.OptionImpl#getOption <em>Option</em>}</li>
  *   <li>{@link com.dexels.navajo.navascript.impl.OptionImpl#getExpressionList <em>Expression List</em>}</li>
  * </ul>
  *
@@ -31,6 +32,26 @@ import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
  */
 public class OptionImpl extends MinimalEObjectImpl.Container implements Option
 {
+  /**
+   * The default value of the '{@link #getOption() <em>Option</em>}' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getOption()
+   * @generated
+   * @ordered
+   */
+  protected static final String OPTION_EDEFAULT = null;
+
+  /**
+   * The cached value of the '{@link #getOption() <em>Option</em>}' attribute.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getOption()
+   * @generated
+   * @ordered
+   */
+  protected String option = OPTION_EDEFAULT;
+
   /**
    * The cached value of the '{@link #getExpressionList() <em>Expression List</em>}' containment reference.
    * <!-- begin-user-doc -->
@@ -60,6 +81,31 @@ public class OptionImpl extends MinimalEObjectImpl.Container implements Option
   protected EClass eStaticClass()
   {
     return NavascriptPackage.Literals.OPTION;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public String getOption()
+  {
+    return option;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public void setOption(String newOption)
+  {
+    String oldOption = option;
+    option = newOption;
+    if (eNotificationRequired())
+      eNotify(new ENotificationImpl(this, Notification.SET, NavascriptPackage.OPTION__OPTION, oldOption, option));
   }
 
   /**
@@ -138,6 +184,8 @@ public class OptionImpl extends MinimalEObjectImpl.Container implements Option
   {
     switch (featureID)
     {
+      case NavascriptPackage.OPTION__OPTION:
+        return getOption();
       case NavascriptPackage.OPTION__EXPRESSION_LIST:
         return getExpressionList();
     }
@@ -154,6 +202,9 @@ public class OptionImpl extends MinimalEObjectImpl.Container implements Option
   {
     switch (featureID)
     {
+      case NavascriptPackage.OPTION__OPTION:
+        setOption((String)newValue);
+        return;
       case NavascriptPackage.OPTION__EXPRESSION_LIST:
         setExpressionList((ConditionalExpressions)newValue);
         return;
@@ -171,6 +222,9 @@ public class OptionImpl extends MinimalEObjectImpl.Container implements Option
   {
     switch (featureID)
     {
+      case NavascriptPackage.OPTION__OPTION:
+        setOption(OPTION_EDEFAULT);
+        return;
       case NavascriptPackage.OPTION__EXPRESSION_LIST:
         setExpressionList((ConditionalExpressions)null);
         return;
@@ -188,10 +242,29 @@ public class OptionImpl extends MinimalEObjectImpl.Container implements Option
   {
     switch (featureID)
     {
+      case NavascriptPackage.OPTION__OPTION:
+        return OPTION_EDEFAULT == null ? option != null : !OPTION_EDEFAULT.equals(option);
       case NavascriptPackage.OPTION__EXPRESSION_LIST:
         return expressionList != null;
     }
     return super.eIsSet(featureID);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public String toString()
+  {
+    if (eIsProxy()) return super.toString();
+
+    StringBuilder result = new StringBuilder(super.toString());
+    result.append(" (option: ");
+    result.append(option);
+    result.append(')');
+    return result.toString();
   }
 
 } //OptionImpl

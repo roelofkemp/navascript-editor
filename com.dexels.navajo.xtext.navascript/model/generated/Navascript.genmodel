@@ -188,6 +188,7 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Navascript.ecore#//SelectionArrayElement/innerBody"/>
     </genClasses>
     <genClasses ecoreClass="Navascript.ecore#//Option">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute Navascript.ecore#//Option/option"/>
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference Navascript.ecore#//Option/expressionList"/>
     </genClasses>
     <genClasses ecoreClass="Navascript.ecore#//PropertyArguments">

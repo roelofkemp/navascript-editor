@@ -1115,19 +1115,10 @@ public class NavascriptSemanticSequencer extends AbstractDelegatingSemanticSeque
 	 *     KeyValueArgument returns KeyValueArgument
 	 *
 	 * Constraint:
-	 *     (key=IDENTIFIER value=LiteralOrExpression)
+	 *     ((key=IDENTIFIER | key=OPTION_TYPE) value=LiteralOrExpression)
 	 */
 	protected void sequence_KeyValueArgument(ISerializationContext context, KeyValueArgument semanticObject) {
-		if (errorAcceptor != null) {
-			if (transientValues.isValueTransient(semanticObject, NavascriptPackage.Literals.KEY_VALUE_ARGUMENT__KEY) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, NavascriptPackage.Literals.KEY_VALUE_ARGUMENT__KEY));
-			if (transientValues.isValueTransient(semanticObject, NavascriptPackage.Literals.KEY_VALUE_ARGUMENT__VALUE) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, NavascriptPackage.Literals.KEY_VALUE_ARGUMENT__VALUE));
-		}
-		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
-		feeder.accept(grammarAccess.getKeyValueArgumentAccess().getKeyIDENTIFIERTerminalRuleCall_1_0(), semanticObject.getKey());
-		feeder.accept(grammarAccess.getKeyValueArgumentAccess().getValueLiteralOrExpressionParserRuleCall_3_0(), semanticObject.getValue());
-		feeder.finish();
+		genericSequencer.createSequence(context, semanticObject);
 	}
 	
 	
@@ -1408,14 +1399,17 @@ public class NavascriptSemanticSequencer extends AbstractDelegatingSemanticSeque
 	 *     Option returns Option
 	 *
 	 * Constraint:
-	 *     expressionList=ConditionalExpressions
+	 *     (option=OPTION_TYPE expressionList=ConditionalExpressions)
 	 */
 	protected void sequence_Option(ISerializationContext context, Option semanticObject) {
 		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, NavascriptPackage.Literals.OPTION__OPTION) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, NavascriptPackage.Literals.OPTION__OPTION));
 			if (transientValues.isValueTransient(semanticObject, NavascriptPackage.Literals.OPTION__EXPRESSION_LIST) == ValueTransient.YES)
 				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, NavascriptPackage.Literals.OPTION__EXPRESSION_LIST));
 		}
 		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getOptionAccess().getOptionOPTION_TYPEParserRuleCall_1_0(), semanticObject.getOption());
 		feeder.accept(grammarAccess.getOptionAccess().getExpressionListConditionalExpressionsParserRuleCall_3_0(), semanticObject.getExpressionList());
 		feeder.finish();
 	}

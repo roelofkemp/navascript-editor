@@ -3,8 +3,18 @@
  */
 package com.dexels.navajo.ui.contentassist;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.xtext.Assignment;
+import org.eclipse.xtext.Keyword;
+import org.eclipse.xtext.RuleCall;
 import org.eclipse.xtext.nodemodel.INode;
 import org.eclipse.xtext.ui.editor.contentassist.ContentAssistContext;
 import org.eclipse.xtext.ui.editor.contentassist.ICompletionProposalAcceptor;
@@ -13,8 +23,17 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
+import com.dexels.navajo.mapping.compiler.meta.MapDefinition;
+import com.dexels.navajo.mapping.compiler.meta.MethodDefinition;
+import com.dexels.navajo.mapping.compiler.meta.ParameterDefinition;
+import com.dexels.navajo.mapping.compiler.meta.ValueDefinition;
+import com.dexels.navajo.navascript.KeyValueArgument;
+import com.dexels.navajo.navascript.impl.AdapterMethodImpl;
+import com.dexels.navajo.navascript.impl.FunctionIdentifierImpl;
+import com.dexels.navajo.navascript.impl.KeyValueArgumentsImpl;
 import com.dexels.navajo.navascript.impl.MapImpl;
 import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
+import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
 import com.dexels.navajo.xtext.navascript.navajobridge.OSGIRuntime;
 
 /**
@@ -52,20 +71,121 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 		}
 	}
 
-	private void createProposals(String [] content, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-		
-		for ( String proposal : content ) {
-			acceptor.accept(createCompletionProposal(proposal, context));
+	protected ICompletionProposal createCompletionProposalFormatted(String proposal, String extra, int priority, ContentAssistContext contentAssistContext) {
+
+
+		StyledString displayText = ( extra != null ? 
+				new StyledString(proposal).append(" - " + extra, ( priority > 1 ? StyledString.DECORATIONS_STYLER : StyledString.QUALIFIER_STYLER) ) : null);
+
+		return createCompletionProposal(proposal, displayText, null, priority, contentAssistContext.getPrefix(), contentAssistContext);
+	}
+
+	@Override
+	public void completeKeyword(Keyword keyword, ContentAssistContext contentAssistContext,
+			ICompletionProposalAcceptor acceptor) {
+		//System.err.println("In completeKeyword");
+	}
+
+	private void processKeyValueArguments(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		if ( model instanceof KeyValueArgumentsImpl ) {
+			// Get parent
+			KeyValueArgumentsImpl kvai = (KeyValueArgumentsImpl) model;
+			EObject parent = context.getCurrentNode().getParent().getSemanticElement();
+			MapImpl map = findFirstMap(context.getLastCompleteNode());
+			if ( parent instanceof AdapterMethodImpl ) {
+				AdapterMethodImpl method = (AdapterMethodImpl) parent;
+				Set<String> currentParameters = new HashSet<>();
+				for ( KeyValueArgument arg : kvai.getKeyValueArguments()) {
+					currentParameters.add(arg.getKey());
+				}
+				createParameterList(context, acceptor, map, method, currentParameters);
+			} else {
+				System.err.println(">>>>>>>>>>>>>> Parent is: " + parent);
+			}
+		} else if ( model instanceof AdapterMethodImpl ) {
+			AdapterMethodImpl method = (AdapterMethodImpl) model;
+			MapImpl map = findFirstMap(context.getLastCompleteNode());
+			createParameterList(context, acceptor, map, method, null);
+		} else if ( model instanceof MapImpl ) {
+			MapImpl map = (MapImpl) model;
+			MapDefinition md = adapters.getAdapter(map.getAdapterName()).getMapDefinition();
+			Set<String> values = new TreeSet<>(md.getValueDefinitions());
+			for ( String value : values) {
+				ValueDefinition vd = md.getValueDefinition(value);
+				System.err.println("vd: " + vd.getName() + "/" + vd.getRequired());
+				if ( vd != null && ( vd.getRequired() == null || !"automatic".equals(vd.getRequired()))) {
+					acceptor.accept(createCompletionProposalFormatted(vd.getName() + "=", vd.getMapType(), 1, context));
+				}
+			}
 		}
 	}
-	
+
+	private void createParameterList(ContentAssistContext context, ICompletionProposalAcceptor acceptor, MapImpl map,
+			AdapterMethodImpl method, Set<String> currentParameters) {
+		MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
+		MethodDefinition mdm = md.getMapDefinition().getMethodDefinition(method.getMethod().substring(1));
+		Set<String> parameters = new TreeSet<>( mdm.getParameters() );
+		if ( currentParameters == null ) {
+			currentParameters =  new HashSet<>();
+		}
+		for ( String param : parameters ) { // First add all required params
+			ParameterDefinition vd = mdm.getParameterDefinition(param);
+			if ( vd != null && !currentParameters.contains(param) && "true".equals(vd.getRequired())) {
+				currentParameters.add(param);
+				String type = "unknown";
+				try {
+					type = md.getType(vd.getField());
+				} catch (Exception e) {
+					System.err.println("Could not determine type for parameter: " + param);
+				}
+				System.err.println("Adding required param: " + param);
+				acceptor.accept(createCompletionProposalFormatted(param + "=", type + " [" + vd.getRequired() + "]", 10, context));
+			}
+		}
+		for ( String param : parameters ) {
+			ParameterDefinition vd = mdm.getParameterDefinition(param);
+			if (  vd != null && !currentParameters.contains(param) && ( vd.getRequired() == null || !"automatic".equals(vd.getRequired()))) {
+				String type = "unknown";
+				try {
+					type = md.getType(vd.getField());
+				} catch (Exception e) {
+					System.err.println("Could not determine type for parameter: " + param);
+				}
+				System.err.println("Adding NON required param: " + param);
+				acceptor.accept(createCompletionProposalFormatted(param + "=", type, 1, context));
+			}
+		}
+	}
+
+	@Override
+	public void complete_KeyValueArguments(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		System.err.println("In complete_KeyValueArguments");
+		System.err.println("model: " + model);
+		System.err.println("RuleCall: " + ruleCall);
+		processKeyValueArguments(model, ruleCall, context, acceptor);
+	}
+
+	public void complete_KeyValueArgument(EObject model, RuleCall ruleCall, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		processKeyValueArguments(model, ruleCall, context, acceptor);
+	}
+
 	@Override
 	public void completeSetterField_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 
 		MapImpl map = findFirstMap(context.getLastCompleteNode());
 		if ( map != null ) {
-			String [] methods = adapters.getFields(map.getAdapterName());
-			createProposals(methods, context, acceptor);
+			MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
+			String [] fields = adapters.getFields(map.getAdapterName());
+			for ( String a : fields ) {
+				String type = "unknown";
+				try {
+					type = md.getType(a);
+				} catch (Exception e) {
+					System.err.println("Could not determine type for field: " + a);
+				}
+				System.err.println(a + " has type " + type);
+				acceptor.accept(createCompletionProposalFormatted("$" + a, type, 1, context));
+			}
 		}
 	}
 
@@ -76,7 +196,14 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 		MapImpl map = findFirstMap(context.getLastCompleteNode());
 		if ( map != null ) {
 			String [] methods = adapters.getMethods(map.getAdapterName());
-			createProposals(methods, context, acceptor);
+			MapDefinition md = adapters.getAdapter(map.getAdapterName()).getMapDefinition();
+			System.err.println(map.getAdapterName() + " -> " + md);
+			for ( String a : methods) {
+				MethodDefinition mdd = md.getMethodDefinition(a.substring(1)); 
+				System.err.println(a + "-> " + mdd);
+				Set<String> parameters = mdd.getParameters();
+				acceptor.accept(createCompletionProposalFormatted(a, parameters+"", 1, context));
+			}
 		} else {
 			System.err.println("No parent map found");
 		}
@@ -86,9 +213,63 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 	public void completeMap_AdapterName(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 
 		String [] list =  adapters.getAdapters();
-		createProposals(list, context, acceptor);
+		for ( String a : list) {
+			MapDefinition md = adapters.getAdapter(a).getMapDefinition();
+			String description = ( md.description != null ? md.description.replaceAll("\n", "") : null);
+			acceptor.accept(createCompletionProposalFormatted(md.tagName, description, 1, context));
+		}
 	}
 
+	@Override
+	public void completeMappableIdentifier_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		
+		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		if ( map != null ) {
+			MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
+			String [] fields = adapters.getGetters(map.getAdapterName());
+			System.err.println("In completeMappableIdentifier_Field: " + fields);
+			for ( String a : fields ) {
+				List<List<String>> type = new ArrayList<>();
+				try {
+					type = md.getGetterTypeSignatures(a);
+				} catch (Exception e) {
+					System.err.println("Could not determine type for field: " + a);
+				}
+				System.err.println(a + " has type " + type);
+				acceptor.accept(createCompletionProposalFormatted("$" + a, type.toString(), 1, context));
+			}
+		}
+	}
+	
+	@Override
+	public void completeFunctionIdentifier_Func(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+		String [] functions = adapters.getFunctions();
+		for ( String a : functions ) {
+			String description = "";
+			try {
+				description = adapters.getFunction(a).getDescription();
+			} catch (Exception e) {
+				System.err.println("Could not determine type for field: " + a);
+			}
+			acceptor.accept(createCompletionProposalFormatted( a + "(", description, 1, context));
+		}
+	}
+	
+	@Override
+	public void completeFunctionIdentifier_Args(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+				
+		if ( model instanceof FunctionIdentifierImpl ) {
+			
+			FunctionIdentifierImpl fil = (FunctionIdentifierImpl) model;
+			List<String> inputs = adapters.getFunction(fil.getFunc()).getInput();
+			for ( String i : inputs ) {
+				i = i.replace(',', '|');
+				i = i.replace(';', ',');
+				acceptor.accept(createCompletionProposalFormatted( "", i, 10, context));
+			}
+		}
+	}
+	
 	@Override
 	public void serviceChanged(ServiceEvent arg0) {
 		init();

@@ -54,9 +54,6 @@ public class NavascriptTokenToAttributeIdManager extends AbstractAntlrTokenToAtt
 				"RULE_MAP_DEF",
 				"RULE_MODE_DEF",
 				"RULE_OBJECT_OLDSKOOL_DEF",
-				"RULE_OPTION_NAME_DEF",
-				"RULE_OPTION_VALUE_DEF",
-				"RULE_OPTION_SELECTED_DEF",
 				"RULE_BREAK_DEF"
 		};
 	
@@ -66,6 +63,9 @@ public class NavascriptTokenToAttributeIdManager extends AbstractAntlrTokenToAtt
 	@Override
 	protected String calculateId(String tokenName, int tokenType) {
 		
+		if ( "RULE_METHOD_IDENTIFIER".equals(tokenName) || "RULE_MAPPABLE_IDENTIFIER".equals(tokenName)) {
+			return NavascriptLexicalHighlightingConfiguration.METHOD_NAME;
+		}
 		if(PUNCTUATION.matcher(tokenName).matches()) {
 			return HighlightingStyles.PUNCTUATION_ID;
 		}

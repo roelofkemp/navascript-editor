@@ -20,6 +20,9 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 	public static final String QUOTED_IDENTIFIER_ID = "quotedIdentifier";
 	public static final String TML_KEYWORD = "tml";
 	public static final String TML_LITERAL = "tmlLiteral";
+	public static final String METHOD_NAME = "Method name";
+	public static final String MISSING_PARAMETERS = "Missing Parameters";
+	
 	/**
 	 * @since 2.6
 	 */
@@ -44,6 +47,8 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 		acceptor.acceptDefaultHighlighting(INVALID_TOKEN_ID, "Invalid Symbol", errorTextStyle());
 		acceptor.acceptDefaultHighlighting(TML_KEYWORD, "TML entity", tmlTextStyle());
 		acceptor.acceptDefaultHighlighting(TML_LITERAL, "TML literal", tmlLiteralTextStyle());
+		acceptor.acceptDefaultHighlighting(METHOD_NAME, "Method Name", methodTextStyle());
+		acceptor.acceptDefaultHighlighting(MISSING_PARAMETERS, "Missing Parameters", errorTextStyle());
 	}
 	
 	public TextStyle defaultTextStyle() {
@@ -54,6 +59,7 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 	public TextStyle errorTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
 		textStyle.setColor(new RGB(255,0,0));
+		textStyle.setStyle(SWT.UNDERLINE_ERROR);
 		return textStyle;
 	}
 	
@@ -96,6 +102,12 @@ public class NavascriptLexicalHighlightingConfiguration implements IHighlighting
 		return textStyle;
 	}
 
+	public TextStyle methodTextStyle() {
+		TextStyle textStyle = defaultTextStyle().copy();
+		textStyle.setStyle(SWT.ITALIC);
+		return textStyle;
+	}
+	
 	public TextStyle tmlTextStyle() {
 		TextStyle textStyle = defaultTextStyle().copy();
 		textStyle.setColor(new RGB(127, 159, 191));

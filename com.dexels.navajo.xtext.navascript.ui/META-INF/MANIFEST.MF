@@ -6,9 +6,7 @@ Bundle-Vendor: Dexels BV
 Bundle-Version: 0.9.1
 Bundle-SymbolicName: com.dexels.navajo.xtext.navascript.ui; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.dexels.navajo.xtext.navascript,
- com.dexels.navajo.xtext.navascript.ide,
- org.eclipse.xtext.ui,
+Require-Bundle: org.eclipse.xtext.ui,
  org.eclipse.xtext.ui.shared,
  org.eclipse.xtext.ui.codetemplates.ui,
  org.eclipse.ui.editors;bundle-version="3.5.0",
@@ -16,8 +14,14 @@ Require-Bundle: com.dexels.navajo.xtext.navascript,
  org.eclipse.ui,
  org.eclipse.compare,
  org.eclipse.xtext.builder,
- org.eclipse.emf.common
-Import-Package: com.dexels.navajo.xtext.navascript.navajobridge,
+ org.eclipse.emf.common,
+ com.dexels.navajo.xtext.navascript.ide;bundle-version="0.9.1",
+ com.dexels.navajo.xtext.navascript
+Import-Package: com.dexels.navajo.mapping,
+ com.dexels.navajo.mapping.compiler,
+ com.dexels.navajo.mapping.compiler.meta,
+ com.dexels.navajo.navascript.impl,
+ com.dexels.navajo.xtext.navascript.navajobridge,
  org.apache.log4j,
  org.eclipse.xtext.xbase.ui.hover
 Export-Package: com.dexels.navajo.ui,
@@ -29,3 +33,4 @@ Export-Package: com.dexels.navajo.ui,
  com.dexels.navajo.validation,
  com.dexels.navajo.xtext.navascript.ui.internal
 Bundle-Activator: com.dexels.navajo.xtext.navascript.ui.internal.NavascriptActivator
+Bundle-RequiredExecutionEnvironment: JavaSE-11

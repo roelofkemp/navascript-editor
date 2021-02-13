@@ -6,10 +6,11 @@ Bundle-Vendor: My Company
 Bundle-Version: 0.9.1
 Bundle-SymbolicName: com.dexels.navajo.xtext.navascript.ide; singleton:=true
 Bundle-ActivationPolicy: lazy
-Require-Bundle: com.dexels.navajo.xtext.navascript,
- org.eclipse.xtext.ide,
+Require-Bundle: org.eclipse.xtext.ide,
  org.eclipse.xtext.xbase.ide,
- org.antlr.runtime;bundle-version="[3.2.0,3.2.1)"
+ org.antlr.runtime;bundle-version="[3.2.0,3.2.1)",
+ com.dexels.navajo.xtext.navascript;bundle-version="0.9.1"
 Export-Package: com.dexels.navajo.ide,
  com.dexels.navajo.ide.contentassist.antlr,
  com.dexels.navajo.ide.contentassist.antlr.internal
+Bundle-RequiredExecutionEnvironment: JavaSE-11

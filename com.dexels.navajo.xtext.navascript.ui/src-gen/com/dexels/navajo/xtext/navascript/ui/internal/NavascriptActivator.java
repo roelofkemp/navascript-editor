@@ -35,7 +35,6 @@ public class NavascriptActivator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		INSTANCE = this;
-		System.err.println("In NavascriptActivator.start()");
 	}
 	
 	@Override

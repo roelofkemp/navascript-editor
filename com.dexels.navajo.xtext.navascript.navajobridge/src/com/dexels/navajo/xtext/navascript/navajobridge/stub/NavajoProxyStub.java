@@ -1,49 +1,73 @@
 package com.dexels.navajo.xtext.navascript.navajobridge.stub;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventHandler;
 
+import com.dexels.navajo.mapping.compiler.meta.MapDefinition;
 import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
+import com.dexels.navajo.xtext.navascript.navajobridge.FunctionDefinition;
+import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
 
 public class NavajoProxyStub implements EventHandler {
 
 	private EventAdmin myEventAdmin;
 
-	private Map<String, AdapterDefinition> adapters = new HashMap<>();
-	
-	public void init() {
+	private Map<String, MapDefinitionExtended> adapters = new TreeMap<>();
+	private Map<String, FunctionDefinition> functions = new TreeMap<>();
+
+	public void init(MapDefinitionInterrogatorImpl mdii) throws Exception {
+
+		List<MapDefinition> allAdapters = mdii.getAdapters();
+		functions = mdii.getFunctions();
 		
-		// sqlquery
-		AdapterDefinition a1 = new AdapterDefinition("sqlquery");
-		a1.setValues("datasource", "transactionContext", "query");
-		a1.setMethods("addParameter", "update");
-		adapters.put(a1.name, a1);
+		for ( MapDefinition md : allAdapters ) {
+			if ( md.getValueDefinitions().size() > 0 ) {
+				adapters.put(md.tagName, new MapDefinitionExtended(md));
+				
+			}
+		}
 		
-		AdapterDefinition a2 = new AdapterDefinition("navajomap");
-		a2.setValues("sendThrough", "messagePointer");
-		a2.setMethods("createproperty", "callwebservice");
-		adapters.put(a2.name, a2);
-		
-		AdapterDefinition a3 = new AdapterDefinition("mailmap");
-		a3.setValues("from", "to", "cc", "bcc", "subject", "bodyText", "mailServer");
-		a3.setMethods("doSend");
-		adapters.put(a3.name, a3);
-		
-		
+	}
+
+	private void addExtension(MapDefinitionInterrogatorImpl mdii, String ext) {
+		try {
+			mdii.addExtentionDefinition(ext);
+		} catch (Exception e) {
+			System.err.println("Could not load " + ext + ": " + e.getLocalizedMessage());
+		}
 	}
 	
 	public void activate() {
 		System.err.println("In NavajoProxyStub.activate()");
-		init();
+		try {
+			MapDefinitionInterrogatorImpl mdii = new MapDefinitionInterrogatorImpl();
+			
+			addExtension(mdii, "com.dexels.navajo.adapter.functions.StandardAdapterFunctionLibrary");
+			addExtension(mdii, "com.dexels.navajo.adapter.StandardAdapterLibrary");
+			addExtension(mdii, "com.dexels.navajo.adapter.core.NavajoEnterpriseCoreAdapterLibrary");
+			addExtension(mdii, "com.dexels.navajo.mongo.adapter.MongoAdapterLibrary");
+			addExtension(mdii, "com.dexels.navajo.resource.http.bundle.ResourceAdapterLibrary");
+			addExtension(mdii, "com.dexels.navajo.functions.StandardFunctionDefinitions");
+			addExtension(mdii, "com.dexels.navajo.functions.StandardFunctionDefinitions");
+			addExtension(mdii, "com.dexels.navajo.adapter.functions.StandardAdapterFunctionLibrary");
+			
+			init(mdii);
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+		}
+
 	}
-	
+
 	private void sendResponse() {
 		Map<String,Object> map = new HashMap<>();
-		map.put("overview", adapters);
+		map.put("adapters", adapters);
+		map.put("functions", functions);
 		Event e = new Event(AdapterInterrogator.ADAPTER_OVERVIEW, map);
 		myEventAdmin.postEvent(e);
 	}
@@ -57,6 +81,16 @@ public class NavajoProxyStub implements EventHandler {
 	public void handleEvent(Event event) {
 		System.err.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> Received event: " + event);
 		sendResponse();
+	}
+	
+	public static void main(String [] args) {
+		
+		NavajoProxyStub n = new NavajoProxyStub();
+		n.activate();
+		
+		for ( String s : n.functions.keySet() ) {
+			System.err.println(n + " -> " + n.functions.get(s).getInput());
+		}
 	}
 
 }

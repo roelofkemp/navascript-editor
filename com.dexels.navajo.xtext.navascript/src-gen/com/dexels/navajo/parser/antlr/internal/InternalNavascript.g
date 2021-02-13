@@ -3498,20 +3498,38 @@ ruleKeyValueArgument returns [EObject current=null]
 		)
 		(
 			(
-				lv_key_1_0=RULE_IDENTIFIER
-				{
-					newLeafNode(lv_key_1_0, grammarAccess.getKeyValueArgumentAccess().getKeyIDENTIFIERTerminalRuleCall_1_0());
-				}
-				{
-					if ($current==null) {
-						$current = createModelElement(grammarAccess.getKeyValueArgumentRule());
+				(
+					lv_key_1_1=RULE_IDENTIFIER
+					{
+						newLeafNode(lv_key_1_1, grammarAccess.getKeyValueArgumentAccess().getKeyIDENTIFIERTerminalRuleCall_1_0_0());
 					}
-					setWithLastConsumed(
-						$current,
-						"key",
-						lv_key_1_0,
-						"com.dexels.navajo.Navascript.IDENTIFIER");
-				}
+					{
+						if ($current==null) {
+							$current = createModelElement(grammarAccess.getKeyValueArgumentRule());
+						}
+						setWithLastConsumed(
+							$current,
+							"key",
+							lv_key_1_1,
+							"com.dexels.navajo.Navascript.IDENTIFIER");
+					}
+					    |
+					{
+						newCompositeNode(grammarAccess.getKeyValueArgumentAccess().getKeyOPTION_TYPEParserRuleCall_1_0_1());
+					}
+					lv_key_1_2=ruleOPTION_TYPE
+					{
+						if ($current==null) {
+							$current = createModelElementForParent(grammarAccess.getKeyValueArgumentRule());
+						}
+						set(
+							$current,
+							"key",
+							lv_key_1_2,
+							"com.dexels.navajo.Navascript.OPTION_TYPE");
+						afterParserOrEnumRuleCall();
+					}
+				)
 			)
 		)
 		this_ASSIGNMENT_2=RULE_ASSIGNMENT
@@ -4547,31 +4565,34 @@ ruleOption returns [EObject current=null]
 			newLeafNode(this_OPTION_DEF_0, grammarAccess.getOptionAccess().getOPTION_DEFTerminalRuleCall_0());
 		}
 		(
-			this_OPTION_NAME_DEF_1=RULE_OPTION_NAME_DEF
-			{
-				newLeafNode(this_OPTION_NAME_DEF_1, grammarAccess.getOptionAccess().getOPTION_NAME_DEFTerminalRuleCall_1_0());
-			}
-			    |
-			this_OPTION_VALUE_DEF_2=RULE_OPTION_VALUE_DEF
-			{
-				newLeafNode(this_OPTION_VALUE_DEF_2, grammarAccess.getOptionAccess().getOPTION_VALUE_DEFTerminalRuleCall_1_1());
-			}
-			    |
-			this_OPTION_SELECTED_DEF_3=RULE_OPTION_SELECTED_DEF
-			{
-				newLeafNode(this_OPTION_SELECTED_DEF_3, grammarAccess.getOptionAccess().getOPTION_SELECTED_DEFTerminalRuleCall_1_2());
-			}
+			(
+				{
+					newCompositeNode(grammarAccess.getOptionAccess().getOptionOPTION_TYPEParserRuleCall_1_0());
+				}
+				lv_option_1_0=ruleOPTION_TYPE
+				{
+					if ($current==null) {
+						$current = createModelElementForParent(grammarAccess.getOptionRule());
+					}
+					set(
+						$current,
+						"option",
+						lv_option_1_0,
+						"com.dexels.navajo.Navascript.OPTION_TYPE");
+					afterParserOrEnumRuleCall();
+				}
+			)
 		)
-		this_ASSIGNMENT_4=RULE_ASSIGNMENT
+		this_ASSIGNMENT_2=RULE_ASSIGNMENT
 		{
-			newLeafNode(this_ASSIGNMENT_4, grammarAccess.getOptionAccess().getASSIGNMENTTerminalRuleCall_2());
+			newLeafNode(this_ASSIGNMENT_2, grammarAccess.getOptionAccess().getASSIGNMENTTerminalRuleCall_2());
 		}
 		(
 			(
 				{
 					newCompositeNode(grammarAccess.getOptionAccess().getExpressionListConditionalExpressionsParserRuleCall_3_0());
 				}
-				lv_expressionList_5_0=ruleConditionalExpressions
+				lv_expressionList_3_0=ruleConditionalExpressions
 				{
 					if ($current==null) {
 						$current = createModelElementForParent(grammarAccess.getOptionRule());
@@ -4579,15 +4600,15 @@ ruleOption returns [EObject current=null]
 					set(
 						$current,
 						"expressionList",
-						lv_expressionList_5_0,
+						lv_expressionList_3_0,
 						"com.dexels.navajo.Navascript.ConditionalExpressions");
 					afterParserOrEnumRuleCall();
 				}
 			)
 		)
-		this_EOL_6=RULE_EOL
+		this_EOL_4=RULE_EOL
 		{
-			newLeafNode(this_EOL_6, grammarAccess.getOptionAccess().getEOLTerminalRuleCall_4());
+			newLeafNode(this_EOL_4, grammarAccess.getOptionAccess().getEOLTerminalRuleCall_4());
 		}
 	)
 ;
@@ -6563,6 +6584,42 @@ rulePropertyType returns [EObject current=null]
 	)
 ;
 
+// Entry rule entryRuleOPTION_TYPE
+entryRuleOPTION_TYPE returns [String current=null]:
+	{ newCompositeNode(grammarAccess.getOPTION_TYPERule()); }
+	iv_ruleOPTION_TYPE=ruleOPTION_TYPE
+	{ $current=$iv_ruleOPTION_TYPE.current.getText(); }
+	EOF;
+
+// Rule OPTION_TYPE
+ruleOPTION_TYPE returns [AntlrDatatypeRuleToken current=new AntlrDatatypeRuleToken()]
+@init {
+	enterRule();
+}
+@after {
+	leaveRule();
+}:
+	(
+		kw='name'
+		{
+			$current.merge(kw);
+			newLeafNode(kw, grammarAccess.getOPTION_TYPEAccess().getNameKeyword_0());
+		}
+		    |
+		kw='value'
+		{
+			$current.merge(kw);
+			newLeafNode(kw, grammarAccess.getOPTION_TYPEAccess().getValueKeyword_1());
+		}
+		    |
+		kw='selected'
+		{
+			$current.merge(kw);
+			newLeafNode(kw, grammarAccess.getOPTION_TYPEAccess().getSelectedKeyword_2());
+		}
+	)
+;
+
 // Entry rule entryRuleMessageType
 entryRuleMessageType returns [EObject current=null]:
 	{ newCompositeNode(grammarAccess.getMessageTypeRule()); }
@@ -6740,12 +6797,6 @@ RULE_INOUT_DEF : 'inout';
 RULE_IN_DEF : 'in';
 
 RULE_OUT_DEF : 'out';
-
-RULE_OPTION_NAME_DEF : 'name';
-
-RULE_OPTION_VALUE_DEF : 'value';
-
-RULE_OPTION_SELECTED_DEF : 'selected';
 
 RULE_DESCRIPTION_DEF : 'description';
 

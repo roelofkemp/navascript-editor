@@ -2405,9 +2405,20 @@ public class NavascriptPackageImpl extends EPackageImpl implements NavascriptPac
    * @generated
    */
   @Override
+  public EAttribute getOption_Option()
+  {
+    return (EAttribute)optionEClass.getEStructuralFeatures().get(0);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
   public EReference getOption_ExpressionList()
   {
-    return (EReference)optionEClass.getEStructuralFeatures().get(0);
+    return (EReference)optionEClass.getEStructuralFeatures().get(1);
   }
 
   /**
@@ -3695,6 +3706,7 @@ public class NavascriptPackageImpl extends EPackageImpl implements NavascriptPac
     createEReference(selectionArrayElementEClass, SELECTION_ARRAY_ELEMENT__INNER_BODY);
 
     optionEClass = createEClass(OPTION);
+    createEAttribute(optionEClass, OPTION__OPTION);
     createEReference(optionEClass, OPTION__EXPRESSION_LIST);
 
     propertyArgumentsEClass = createEClass(PROPERTY_ARGUMENTS);
@@ -4112,6 +4124,7 @@ public class NavascriptPackageImpl extends EPackageImpl implements NavascriptPac
     initEReference(getSelectionArrayElement_InnerBody(), this.getInnerBody(), null, "innerBody", null, 0, -1, SelectionArrayElement.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
     initEClass(optionEClass, Option.class, "Option", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+    initEAttribute(getOption_Option(), ecorePackage.getEString(), "option", null, 0, 1, Option.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
     initEReference(getOption_ExpressionList(), this.getConditionalExpressions(), null, "expressionList", null, 0, 1, Option.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
     initEClass(propertyArgumentsEClass, PropertyArguments.class, "PropertyArguments", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);

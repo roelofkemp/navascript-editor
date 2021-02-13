@@ -46,11 +46,11 @@ public class NavascriptParser extends AbstractContentAssistParser {
 			builder.put(grammarAccess.getMapAccess().getAlternatives_1(), "rule__Map__Alternatives_1");
 			builder.put(grammarAccess.getMethodOrSetterAccess().getAlternatives(), "rule__MethodOrSetter__Alternatives");
 			builder.put(grammarAccess.getSetterFieldAccess().getAlternatives_2(), "rule__SetterField__Alternatives_2");
+			builder.put(grammarAccess.getKeyValueArgumentAccess().getKeyAlternatives_1_0(), "rule__KeyValueArgument__KeyAlternatives_1_0");
 			builder.put(grammarAccess.getVarAccess().getAlternatives_4(), "rule__Var__Alternatives_4");
 			builder.put(grammarAccess.getVarArgumentAccess().getArgumentAlternatives_1_0(), "rule__VarArgument__ArgumentAlternatives_1_0");
 			builder.put(grammarAccess.getVarTypeAccess().getTypeAlternatives_3_0(), "rule__VarType__TypeAlternatives_3_0");
 			builder.put(grammarAccess.getPropertyAccess().getAlternatives_4(), "rule__Property__Alternatives_4");
-			builder.put(grammarAccess.getOptionAccess().getAlternatives_1(), "rule__Option__Alternatives_1");
 			builder.put(grammarAccess.getPropertyArgumentAccess().getAlternatives(), "rule__PropertyArgument__Alternatives");
 			builder.put(grammarAccess.getDirectionArgumentAccess().getValueAlternatives_2_0(), "rule__DirectionArgument__ValueAlternatives_2_0");
 			builder.put(grammarAccess.getCardinalityArgumentAccess().getValueAlternatives_2_0(), "rule__CardinalityArgument__ValueAlternatives_2_0");
@@ -65,6 +65,7 @@ public class NavascriptParser extends AbstractContentAssistParser {
 			builder.put(grammarAccess.getAtomicAccess().getValueAlternatives_3_1_0(), "rule__Atomic__ValueAlternatives_3_1_0");
 			builder.put(grammarAccess.getForAllIdentifierAccess().getOpAlternatives_1_0(), "rule__ForAllIdentifier__OpAlternatives_1_0");
 			builder.put(grammarAccess.getPropertyTypeAccess().getAlternatives(), "rule__PropertyType__Alternatives");
+			builder.put(grammarAccess.getOPTION_TYPEAccess().getAlternatives(), "rule__OPTION_TYPE__Alternatives");
 			builder.put(grammarAccess.getMessageTypeAccess().getAlternatives(), "rule__MessageType__Alternatives");
 			builder.put(grammarAccess.getMessageModeAccess().getAlternatives(), "rule__MessageMode__Alternatives");
 			builder.put(grammarAccess.getNavascriptAccess().getGroup(), "rule__Navascript__Group__0");
@@ -321,6 +322,7 @@ public class NavascriptParser extends AbstractContentAssistParser {
 			builder.put(grammarAccess.getSelectionArrayAccess().getArrayElementsAssignment_0(), "rule__SelectionArray__ArrayElementsAssignment_0");
 			builder.put(grammarAccess.getSelectionArrayAccess().getArrayElementsAssignment_1_1(), "rule__SelectionArray__ArrayElementsAssignment_1_1");
 			builder.put(grammarAccess.getSelectionArrayElementAccess().getInnerBodyAssignment_2(), "rule__SelectionArrayElement__InnerBodyAssignment_2");
+			builder.put(grammarAccess.getOptionAccess().getOptionAssignment_1(), "rule__Option__OptionAssignment_1");
 			builder.put(grammarAccess.getOptionAccess().getExpressionListAssignment_3(), "rule__Option__ExpressionListAssignment_3");
 			builder.put(grammarAccess.getPropertyArgumentsAccess().getArgumentsAssignment_2(), "rule__PropertyArguments__ArgumentsAssignment_2");
 			builder.put(grammarAccess.getPropertyArgumentsAccess().getArgumentsAssignment_3_1(), "rule__PropertyArguments__ArgumentsAssignment_3_1");

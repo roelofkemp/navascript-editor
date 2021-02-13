@@ -3,23 +3,174 @@
  */
 package com.dexels.navajo.validation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.validation.Check;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
+
+import com.dexels.navajo.navascript.KeyValueArgument;
+import com.dexels.navajo.navascript.KeyValueArguments;
+import com.dexels.navajo.navascript.NavascriptPackage;
+import com.dexels.navajo.navascript.impl.AdapterMethodImpl;
+import com.dexels.navajo.navascript.impl.MapImpl;
+import com.dexels.navajo.navascript.impl.MappableIdentifierImpl;
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
+import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
+import com.dexels.navajo.xtext.navascript.navajobridge.OSGIRuntime;
 
 /**
  * This class contains custom validation rules. 
  *
  * See https://www.eclipse.org/Xtext/documentation/303_runtime_concepts.html#validation
  */
-public class NavascriptValidator extends AbstractNavascriptValidator {
+public class NavascriptValidator extends AbstractNavascriptValidator implements ServiceListener {
+
+	AdapterInterrogator adapters = null;
+	BundleContext context;
+
+	public NavascriptValidator() {
+		context = OSGIRuntime.getDefaultBundleContext();
+		context.addServiceListener(this);
+		System.err.println("In NavascriptValidator: " + context);
+	}
+
+	public synchronized void init() {
+		if ( adapters == null ) {
+			ServiceReference<AdapterInterrogator> ref = context.getServiceReference(AdapterInterrogator.class);
+			adapters = context.getService(ref);
+			System.err.println("In NavascriptValidator.init(): " + ref);
+		}
+	}
+
+	private MapImpl findFirstMap(EObject node) {
+
+		if ( node != null ) {
+			if ( node instanceof MapImpl) {
+				return (MapImpl) node;
+			} else {
+				return findFirstMap(node.eContainer());
+			}
+		} else {
+			return null;
+		}
+	}
+
+	@Check
+	public void checkMapDefinition(MapImpl map) {
+		
+		String adapterName = map.getAdapterName();
+		String objectName = map.getObjectName();
+		
+		System.err.println("In checkMapDefinition. adapterName: " + adapterName + ", objectName: " + objectName);
+		
+		// If an objectName (old style) is used, ignore check.
+		if ( objectName != null && !"".equals(objectName)) {
+			return;
+		}
+		
+		if ( adapterName != null && !"".equals(adapterName)) {
+			if ( adapters.getAdapter(adapterName) == null ) {
+				error("Unknown adapter: " + adapterName, NavascriptPackage.Literals.MAP__ADAPTER_NAME);
+			}
+		}
+	}
 	
-//	public static final String INVALID_NAME = "invalidName";
-//
-//	@Check
-//	public void checkGreetingStartsWithCapital(Greeting greeting) {
-//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
-//			warning("Name should start with a capital",
-//					NavascriptPackage.Literals.GREETING__NAME,
-//					INVALID_NAME);
-//		}
-//	}
+	@Check
+	public void checkMappableIdentifier(MappableIdentifierImpl mai) {
+		
+		MapImpl map = findFirstMap(mai.eContainer());
+		String adapterName = map.getAdapterName();
+		String fieldName = mai.getField().substring(1);
+		
+		MapDefinitionExtended mapdef = adapters.getAdapter(adapterName);
+		
+		boolean isValid = mapdef.isGetter(fieldName);
+		
+		if (!isValid) {
+			error("Unknown mappable field: " + fieldName, NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__FIELD);
+		}
+		
+		int numberOfArguments = mai.getArgs().size();
+		List<List<String>> signatures = mapdef.getGetterTypeSignatures(fieldName);
+		for ( List<String> parameters : signatures ) {
+			if ( parameters.size() == numberOfArguments ) {
+				return;
+			}
+		}
+		
+		error("Invalid number of arguments", NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__ARGS);
+	}
 	
+	@Check
+	public void checkAdapterMethodParameters(AdapterMethodImpl am) {
+
+		try {
+
+			MapImpl map = findFirstMap(am.eContainer());
+			String adapterName = map.getAdapterName();
+			if ( adapterName == null || "null".equals(adapterName)) {
+				error("Missing adapter definition for method", NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
+				return;
+			}
+
+			KeyValueArguments kvas =  am.getArguments();
+
+			MapDefinitionExtended mapdef = adapters.getAdapter(adapterName);
+			
+			if ( mapdef == null ) {
+				return;
+			}
+			
+			List<String> parameters = new ArrayList<>();
+
+			if ( kvas != null ) {
+				for ( KeyValueArgument a : kvas.getKeyValueArguments()) {
+					parameters.add(a.getKey());
+				}
+			}
+
+			String methodName = am.getMethod().substring(1);
+			Set<String> missing = mapdef.missingRequiredParameters(methodName, parameters);
+
+			Set<String> unknown = mapdef.unknownParameters(methodName, parameters);
+
+			StringBuffer message = new StringBuffer();
+			if ( missing.size() > 0 ) {
+				message.append("Missing required parameters: " + missing + ". ");
+			}
+			if ( unknown.size() > 0 ) {
+				message.append("Unknown parameters: " + unknown);
+			}
+			if ( missing.size() > 0 || unknown.size() > 0) { 
+				error(message.toString(), NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
+			}
+
+		} catch (Throwable t) {
+			t.printStackTrace(System.err);
+		}
+
+	}
+
+
+	//	public static final String INVALID_NAME = "invalidName";
+	//
+	//	@Check
+	//	public void checkGreetingStartsWithCapital(Greeting greeting) {
+	//		if (!Character.isUpperCase(greeting.getName().charAt(0))) {
+	//			warning("Name should start with a capital",
+	//					NavascriptPackage.Literals.GREETING__NAME,
+	//					INVALID_NAME);
+	//		}
+	//	}
+
+	@Override
+	public void serviceChanged(ServiceEvent event) {
+		init();
+	}
 }

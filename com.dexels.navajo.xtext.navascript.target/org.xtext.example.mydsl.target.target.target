@@ -43,18 +43,21 @@
     	<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
         	<repository location="http://p2.dexels.com/eclipse/navajo_1.0.1162"/>
         	<unit id="com.dexels.navajo.core.feature.feature.group" version="1.0.0.202101141628"/>
+        	 <unit id="com.dexels.navajo.resource.feature.feature.group" version="0.0.0"/>
+            <unit id="com.dexels.navajo.server.feature.feature.group" version="0.0.0"/>
     	</location>
+        <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+            <repository location="https://p2.dexels.com/eclipse/enterprise_3.3.1026/"/>
+            <unit id="com.dexels.navajo.enterprise.feature.feature.group" version="0.0.0"/>
+            <unit id="com.dexels.navajo.enterprise.reactive.feature.feature.group" version="0.0.0"/>
+            <unit id="com.dexels.navajo.mongo.feature.feature.group" version="0.0.0"/>
+        </location>
     	<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
         	<repository location="http://p2.dexels.com/eclipse/3rdparty_3.3.796"/>
         	<unit id="bcpg" version="1.64.0"/>
         	<unit id="bcpkix" version="1.64.0"/>
         	<unit id="bcprov" version="1.64.0"/>
-        	<unit id="com.dexels.appstore.ant" version="1.0.41"/>
-        	<unit id="com.dexels.appstore.core" version="7.0.3"/>
-        	<unit id="com.dexels.appstore.server" version="6.0.93"/>
-        	<unit id="com.dexels.appstore.websocket" version="0.1.6.201609190858"/>
-        	<unit id="com.dexels.hazelcast" version="6.0.5"/>
-        	<unit id="com.dexels.hazelcast.kubernetes" version="6.0.2"/>
+        	
         	<unit id="com.dexels.immutable.api" version="3.3.3"/>
         	<unit id="com.dexels.immutable.impl" version="1.4.10"/>
         	<unit id="com.dexels.index.api" version="1.0.0.201608241244"/>
@@ -65,25 +68,15 @@
         	<unit id="com.dexels.kafka.webapi" version="1.0.12"/>
         	<unit id="com.dexels.keystoreprovider" version="1.0.0.201711171136"/>
         	<unit id="com.dexels.log4j.server" version="1.0.12.201602171050"/>
-        	<unit id="com.dexels.logback.redis" version="2.2.3"/>
-        	<unit id="com.dexels.logstore.elastic" version="1.0.2.201709070843"/>
+        	
         	<unit id="com.dexels.navajo.webconsole.branding" version="1.0.15"/>
-        	<unit id="com.dexels.oauth.api" version="28.0.0"/>
-        	<unit id="com.dexels.oauth.generic.web" version="1.0.6"/>
-        	<unit id="com.dexels.oauth.impl" version="2.1.7"/>
-        	<unit id="com.dexels.oauth.web" version="3.3.27"/>
+        	
         	<unit id="com.dexels.osgi.bundlesync" version="1.0.28"/>
         	<unit id="com.dexels.prometheus.api" version="3.0.0"/>
         	<unit id="com.dexels.prometheus.impl" version="1.0.5"/>
         	<unit id="com.dexels.pubsub.rx2.api" version="4.7.0"/>
-        	<unit id="com.dexels.replication.api" version="12.3.5"/>
-        	<unit id="com.dexels.replication.impl" version="8.0.3"/>
-        	<unit id="com.dexels.replication.impl.json" version="5.2.10"/>
-        	<unit id="com.dexels.replication.impl.protobuf" version="5.0.4"/>
-        	<unit id="com.dexels.repository.api" version="10.0.4"/>
-        	<unit id="com.dexels.repository.file" version="1.0.38"/>
-        	<unit id="com.dexels.repository.git" version="4.0.46"/>
-        	<unit id="com.dexels.repository.git.api" version="1.2.10"/>
+        	
+        	
         	<unit id="com.dexels.resourcebundle" version="2.0.3"/>
         	<unit id="com.dexels.server.mgmt.api" version="2.0.0"/>
         	<unit id="com.dexels.server.mgmt.impl" version="1.0.14"/>
@@ -107,17 +100,10 @@
         	<unit id="com.mysql.cj" version="8.0.20"/>
         	<unit id="com.mysql.jdbc" version="5.1.45"/>
         	<unit id="com.nimbusds.nimbus-jose-jwt" version="5.10.0"/>
-        	<unit id="com.oracle.database.jdbc.ojdbc8" version="19.7.0.0"/>
-        	<unit id="com.oracle.database.security.oraclepki" version="19.7.0.0"/>
-        	<unit id="com.oracle.database.security.osdt_cert" version="19.7.0.0"/>
-        	<unit id="com.oracle.database.security.osdt_core" version="19.7.0.0"/>
-        	<unit id="com.oracle.jdbc.driver" version="11.2.33"/>
+        	
         	<unit id="com.sun.activation.javax.activation" version="1.2.0"/>
         	<unit id="com.sun.mail.javax.mail" version="1.6.1"/>
         	<unit id="com.vaadin" version="6.8.18"/>
-        	<unit id="io.prometheus.simpleclient" version="0.8.1"/>
-        	<unit id="io.prometheus.simpleclient_common" version="0.8.1"/>
-        	<unit id="io.reactivex.rxjava2.rxjava" version="2.2.19"/>
         	<unit id="io.swagger.annotations" version="1.5.20"/>
         	<unit id="javax.annotation-api" version="1.3.2"/>
         	<unit id="javax.el-api" version="3.0.0"/>
@@ -142,7 +128,6 @@
         	<unit id="org.apache.aries.spifly.dynamic.bundle" version="1.2.3"/>
         	<unit id="org.apache.aries.util" version="1.1.3"/>
         	<unit id="org.apache.commons.codec" version="1.11.0"/>
-        	<unit id="org.apache.commons.commons-compress" version="1.18.0"/>
         	<unit id="org.apache.commons.commons-fileupload" version="1.4.0"/>
         	<unit id="org.apache.commons.dbcp" version="1.4.0"/>
         	<unit id="org.apache.commons.email" version="1.5.0"/>
@@ -244,9 +229,7 @@
         	<unit id="org.osgi.util.promise" version="1.1.1.201810101357"/>
         	<unit id="org.postgresql.jdbc42" version="42.2.0"/>
         	<unit id="org.reactivestreams.reactive-streams" version="1.0.3"/>
-        	<unit id="org.scala-lang.scala-compiler" version="2.12.12.v20200625-063324-VFINAL-cbe6ade"/>
-        	<unit id="org.scala-lang.scala-library" version="2.12.12.v20200625-063324-VFINAL-cbe6ade"/>
-        	<unit id="org.scala-lang.scala-reflect" version="2.12.12.v20200625-063324-VFINAL-cbe6ade"/>
+        	
         	<unit id="org.yaml.snakeyaml" version="1.27.0"/>
         	<unit id="osgi.extension.sun.misc" version="1.0.0"/>
         	<unit id="osgi.promise" version="7.0.1.201810101357"/>
