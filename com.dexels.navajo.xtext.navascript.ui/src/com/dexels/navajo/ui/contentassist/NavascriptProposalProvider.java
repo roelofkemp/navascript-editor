@@ -22,7 +22,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.dexels.navajo.mapping.compiler.meta.MapDefinition;
 import com.dexels.navajo.mapping.compiler.meta.MethodDefinition;
 import com.dexels.navajo.mapping.compiler.meta.ParameterDefinition;
@@ -32,8 +33,10 @@ import com.dexels.navajo.navascript.impl.AdapterMethodImpl;
 import com.dexels.navajo.navascript.impl.FunctionIdentifierImpl;
 import com.dexels.navajo.navascript.impl.KeyValueArgumentsImpl;
 import com.dexels.navajo.navascript.impl.MapImpl;
+import com.dexels.navajo.navascript.impl.MappedArrayFieldImpl;
+import com.dexels.navajo.navigation.NavigationUtils;
 import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
-import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterClassDefinition;
 import com.dexels.navajo.xtext.navascript.navajobridge.OSGIRuntime;
 
 /**
@@ -45,25 +48,17 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 	AdapterInterrogator adapters = null;
 	BundleContext context;
 
+	private static final Logger logger = LoggerFactory.getLogger(NavascriptProposalProvider.class);
+
 	public NavascriptProposalProvider() {
 		context = OSGIRuntime.getDefaultBundleContext();
-		context.addServiceListener(this);
-	}
-
-	private MapImpl findFirstMap(INode node) {
-
-		if ( node != null ) {
-			EObject e = node.getSemanticElement();
-			if ( e instanceof MapImpl) {
-				return (MapImpl) e;
-			} else {
-				return findFirstMap(node.getParent());
-			}
+		if ( context != null ) {
+			context.addServiceListener(this);
 		} else {
-			return null;
+			logger.warn("No OSGI environment found");
 		}
 	}
-
+	
 	public synchronized void init() {
 		if ( adapters == null ) {
 			ServiceReference<AdapterInterrogator> ref = context.getServiceReference(AdapterInterrogator.class);
@@ -91,7 +86,7 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 			// Get parent
 			KeyValueArgumentsImpl kvai = (KeyValueArgumentsImpl) model;
 			EObject parent = context.getCurrentNode().getParent().getSemanticElement();
-			MapImpl map = findFirstMap(context.getLastCompleteNode());
+			EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), 0);
 			if ( parent instanceof AdapterMethodImpl ) {
 				AdapterMethodImpl method = (AdapterMethodImpl) parent;
 				Set<String> currentParameters = new HashSet<>();
@@ -104,7 +99,7 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 			}
 		} else if ( model instanceof AdapterMethodImpl ) {
 			AdapterMethodImpl method = (AdapterMethodImpl) model;
-			MapImpl map = findFirstMap(context.getLastCompleteNode());
+			EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), 0);
 			createParameterList(context, acceptor, map, method, null);
 		} else if ( model instanceof MapImpl ) {
 			MapImpl map = (MapImpl) model;
@@ -120,9 +115,18 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 		}
 	}
 
-	private void createParameterList(ContentAssistContext context, ICompletionProposalAcceptor acceptor, MapImpl map,
+	private void createParameterList(ContentAssistContext context, ICompletionProposalAcceptor acceptor, EObject map,
 			AdapterMethodImpl method, Set<String> currentParameters) {
-		MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
+
+		String adapterName = "";
+		if ( map instanceof MapImpl ) {
+			adapterName = ((MapImpl) map).getAdapterName();
+		} else if ( map instanceof MappedArrayFieldImpl ) { // It's a mapped field. Find it
+			MappedArrayFieldImpl maf = (MappedArrayFieldImpl) map;
+			String field = maf.getField();
+
+		}
+		AdapterClassDefinition md = adapters.getAdapter(adapterName);
 		MethodDefinition mdm = md.getMapDefinition().getMethodDefinition(method.getMethod().substring(1));
 		Set<String> parameters = new TreeSet<>( mdm.getParameters() );
 		if ( currentParameters == null ) {
@@ -169,40 +173,73 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 		processKeyValueArguments(model, ruleCall, context, acceptor);
 	}
 
+	/**
+	 * For the construction inside inner body
+	 * {
+	 *     $[setterfield] = [somevalue];
+	 * }
+	 * 
+	 * The available setterfield values should be found in nearest map (either from MapImpl or from MappedArrayFieldImpl)
+	 */
 	@Override
 	public void completeSetterField_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 
-		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), 0);
+
+		System.err.println("Found adapter: " + map + ", assignment: " + assignment);
+
 		if ( map != null ) {
-			MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
-			String [] fields = adapters.getFields(map.getAdapterName());
-			for ( String a : fields ) {
-				String type = "unknown";
-				try {
-					type = md.getType(a);
-				} catch (Exception e) {
-					System.err.println("Could not determine type for field: " + a);
+			String adapterName;
+			Set<String> fields;
+			if ( map instanceof MapImpl ) {
+				adapterName = ((MapImpl) map).getAdapterName();
+				AdapterClassDefinition md = adapters.getAdapter(adapterName);
+				fields = md.getSetters();
+				for ( String a : fields ) {
+					String type = "unknown";
+					try {
+						type = md.getType(a);
+					} catch (Exception e) {
+						System.err.println("Could not determine type for field: " + a);
+					}
+					System.err.println(a + " has type " + type);
+					acceptor.accept(createCompletionProposalFormatted("$" + a, type, 1, context));
 				}
-				System.err.println(a + " has type " + type);
-				acceptor.accept(createCompletionProposalFormatted("$" + a, type, 1, context));
+			} else if ( map instanceof MappedArrayFieldImpl ) {
+				System.err.println("Closest map is a MappedArrayFieldImpl");
 			}
 		}
 	}
 
+	/**
+	 * For the construction of a "method" inside an adapter.
+	 * Shows list of available method names based on  nearest map.
+	 * 
+	 * map.[someadapter]  {
+	 * 
+	 *   .[method]([arguments]);
+	 *   
+	 * }
+	 */
 	@Override
 	public void completeAdapterMethod_Method(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 
 
-		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), 0);
 		if ( map != null ) {
-			String [] methods = adapters.getMethods(map.getAdapterName());
-			MapDefinition md = adapters.getAdapter(map.getAdapterName()).getMapDefinition();
-			System.err.println(map.getAdapterName() + " -> " + md);
-			for ( String a : methods) {
-				MethodDefinition mdd = md.getMethodDefinition(a.substring(1)); 
-				System.err.println(a + "-> " + mdd);
-				Set<String> parameters = mdd.getParameters();
-				acceptor.accept(createCompletionProposalFormatted(a, parameters+"", 1, context));
+			String adapterName = null;
+			if ( map instanceof MapImpl ) {
+				adapterName = ((MapImpl) map).getAdapterName();
+			} else {
+				// Methods are not supported in MappedArrayField
+				return;
+			}
+			Set<MethodDefinition> methods = adapters.getAdapter(adapterName).getMethods();
+			MapDefinition md = adapters.getAdapter(adapterName).getMapDefinition();
+			System.err.println(adapterName + " -> " + md);
+			for ( MethodDefinition a : methods) {
+				Set<String> parameters = a.getParameters();
+				acceptor.accept(createCompletionProposalFormatted("." + a.getName(), parameters+"", 1, context));
 			}
 		} else {
 			System.err.println("No parent map found");
@@ -220,27 +257,79 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 		}
 	}
 
+	/**
+	 * For the construction of a mappabled field inside an expression.
+	 * 
+	 * ... = $[mappable_field] ... [expression]
+	 * 
+	 */
 	@Override
 	public void completeMappableIdentifier_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+		String prefix = NavigationUtils.getParentPrefix(context.getPrefix(), new StringBuffer());
+		int level = NavigationUtils.countMappableParentLevel(prefix);
 		
-		MapImpl map = findFirstMap(context.getLastCompleteNode());
+		EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), level);
 		if ( map != null ) {
-			MapDefinitionExtended md = adapters.getAdapter(map.getAdapterName());
-			String [] fields = adapters.getGetters(map.getAdapterName());
-			System.err.println("In completeMappableIdentifier_Field: " + fields);
-			for ( String a : fields ) {
-				List<List<String>> type = new ArrayList<>();
-				try {
-					type = md.getGetterTypeSignatures(a);
-				} catch (Exception e) {
-					System.err.println("Could not determine type for field: " + a);
+			AdapterClassDefinition md = NavigationUtils.findAdapterClass(adapters, map);
+			if ( md != null ) {
+				System.err.println("In completeMappableIdentifier_Field. adapter: " + md);
+				Set<String> fields = md.getGetters();
+				System.err.println("In completeMappableIdentifier_Field: " + fields);
+				for ( String a : fields ) {
+					List<List<String>> type = new ArrayList<>();
+					try {
+						type = md.getGetterTypeSignatures(a);
+					} catch (Exception e) {
+						System.err.println("Could not determine type for field: " + a);
+					}
+					System.err.println(a + " has type " + type);
+					acceptor.accept(createCompletionProposalFormatted(prefix + a, type.toString(), 1, context));
 				}
-				System.err.println(a + " has type " + type);
-				acceptor.accept(createCompletionProposalFormatted("$" + a, type.toString(), 1, context));
+			} else {
+				System.err.println("Could not find parent adapter for " + model);
 			}
 		}
 	}
-	
+
+	/**
+	 * For the construction of a mapped field 
+	 * 
+	 * [/My/Array] {
+	 *   $[mapped_field]  {
+	 *   
+	 *   }
+	 * }
+	 */
+	@Override
+	public void completeMappedArrayField_Field(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
+
+		String prefix = NavigationUtils.getParentPrefix(context.getPrefix(), new StringBuffer());
+		System.err.println("Prefix is: " + prefix);
+		int level = NavigationUtils.countMappableParentLevel(prefix);
+		
+		EObject map = NavigationUtils.findFirstMapOrMappedField(context.getLastCompleteNode(), level);
+		System.err.println("In completeMappedArrayField_Field.findFirstMapOrMappedField() map: " + map);
+		
+		if ( map != null ) {
+			AdapterClassDefinition md = NavigationUtils.findAdapterClass(adapters, map);
+			if ( md != null ) {
+				System.err.println("Found AdapterClassDefinition: " + md.getObjectName());
+				List<ValueDefinition> valuedDefs = md.getDeclaredValues();
+				System.err.println("In completeMappedArrayField_Field: " + valuedDefs);
+				for ( ValueDefinition a : valuedDefs ) {
+					System.err.println("ValueDefinition " + a.getName() + " [" + a.getMap() + "]");
+					if ( a.getMap() != null && !"".equals(a.getMap() )) {
+						acceptor.accept(createCompletionProposalFormatted(prefix + a.getName(), a.getMapType(), 10, context));
+					}
+				}
+			} else {
+				System.err.println("Could not findAdapterClass for map: " + map);
+			}
+		}
+	}
+
+
 	@Override
 	public void completeFunctionIdentifier_Func(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
 		String [] functions = adapters.getFunctions();
@@ -254,12 +343,12 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 			acceptor.accept(createCompletionProposalFormatted( a + "(", description, 1, context));
 		}
 	}
-	
+
 	@Override
 	public void completeFunctionIdentifier_Args(EObject model, Assignment assignment, ContentAssistContext context, ICompletionProposalAcceptor acceptor) {
-				
+
 		if ( model instanceof FunctionIdentifierImpl ) {
-			
+
 			FunctionIdentifierImpl fil = (FunctionIdentifierImpl) model;
 			List<String> inputs = adapters.getFunction(fil.getFunc()).getInput();
 			for ( String i : inputs ) {
@@ -269,9 +358,10 @@ public class NavascriptProposalProvider extends AbstractNavascriptProposalProvid
 			}
 		}
 	}
-	
+
 	@Override
 	public void serviceChanged(ServiceEvent arg0) {
 		init();
 	}
+
 }

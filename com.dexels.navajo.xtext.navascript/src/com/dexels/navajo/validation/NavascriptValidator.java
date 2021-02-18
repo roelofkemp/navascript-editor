@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.validation.Check;
 import org.osgi.framework.BundleContext;
@@ -14,14 +15,19 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
+import com.dexels.navajo.navascript.Expression;
 import com.dexels.navajo.navascript.KeyValueArgument;
 import com.dexels.navajo.navascript.KeyValueArguments;
 import com.dexels.navajo.navascript.NavascriptPackage;
 import com.dexels.navajo.navascript.impl.AdapterMethodImpl;
+import com.dexels.navajo.navascript.impl.FunctionIdentifierImpl;
 import com.dexels.navajo.navascript.impl.MapImpl;
 import com.dexels.navajo.navascript.impl.MappableIdentifierImpl;
+import com.dexels.navajo.navascript.impl.MappedArrayFieldImpl;
+import com.dexels.navajo.navigation.NavigationUtils;
 import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
-import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
+import com.dexels.navajo.xtext.navascript.navajobridge.FunctionDefinition;
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterClassDefinition;
 import com.dexels.navajo.xtext.navascript.navajobridge.OSGIRuntime;
 
 /**
@@ -48,63 +54,98 @@ public class NavascriptValidator extends AbstractNavascriptValidator implements 
 		}
 	}
 
-	private MapImpl findFirstMap(EObject node) {
+	@Check
+	public void checkFunction(FunctionIdentifierImpl function) {
 
-		if ( node != null ) {
-			if ( node instanceof MapImpl) {
-				return (MapImpl) node;
-			} else {
-				return findFirstMap(node.eContainer());
-			}
-		} else {
-			return null;
+		String functionName = function.getFunc();
+		EList<Expression> arguments = function.getArgs();
+
+		FunctionDefinition functionDef = adapters.getFunction(functionName);
+
+		if ( functionDef == null ) {
+			warning("Unknown function: " + functionName, NavascriptPackage.Literals.FUNCTION_IDENTIFIER__FUNC);
+			return;
 		}
+
+		List<String> inputs = functionDef.getInput();
+		for ( String alt : inputs ) {
+			int argSize = alt.split(",").length;
+			if ( argSize == arguments.size() ) {
+				return;
+			}
+		}
+
+		error("Invalid number of parameters", NavascriptPackage.Literals.FUNCTION_IDENTIFIER__ARGS );
 	}
 
 	@Check
 	public void checkMapDefinition(MapImpl map) {
-		
+
 		String adapterName = map.getAdapterName();
 		String objectName = map.getObjectName();
-		
+
 		System.err.println("In checkMapDefinition. adapterName: " + adapterName + ", objectName: " + objectName);
-		
+
 		// If an objectName (old style) is used, ignore check.
 		if ( objectName != null && !"".equals(objectName)) {
 			return;
 		}
-		
+
 		if ( adapterName != null && !"".equals(adapterName)) {
 			if ( adapters.getAdapter(adapterName) == null ) {
-				error("Unknown adapter: " + adapterName, NavascriptPackage.Literals.MAP__ADAPTER_NAME);
+				warning("Unknown adapter: " + adapterName, NavascriptPackage.Literals.MAP__ADAPTER_NAME);
 			}
 		}
 	}
-	
+
 	@Check
 	public void checkMappableIdentifier(MappableIdentifierImpl mai) {
+
+		String prefix = mai.getField();
+		String fieldName = NavigationUtils.getFieldFromMappableIdentifier(mai.getField());
+		int level = NavigationUtils.countMappableParentLevel(prefix);
+		EObject parent = NavigationUtils.findFirstMapOrMappedField(mai.eContainer(), level);
+		AdapterClassDefinition mapdef = NavigationUtils.findAdapterClass(adapters,parent);
+		System.err.println("MAPDEF: " + mapdef + ", FIELD: " + fieldName + ", LEVEL: " + level);
 		
-		MapImpl map = findFirstMap(mai.eContainer());
-		String adapterName = map.getAdapterName();
-		String fieldName = mai.getField().substring(1);
-		
-		MapDefinitionExtended mapdef = adapters.getAdapter(adapterName);
-		
-		boolean isValid = mapdef.isGetter(fieldName);
-		
-		if (!isValid) {
-			error("Unknown mappable field: " + fieldName, NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__FIELD);
-		}
-		
-		int numberOfArguments = mai.getArgs().size();
-		List<List<String>> signatures = mapdef.getGetterTypeSignatures(fieldName);
-		for ( List<String> parameters : signatures ) {
-			if ( parameters.size() == numberOfArguments ) {
-				return;
+		if ( mapdef != null ) {
+
+			boolean isValid = mapdef.isGetter(fieldName);
+
+			if (!isValid) {
+				error("Unknown mappable field: " + fieldName, NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__FIELD);
 			}
+
+			int numberOfArguments = mai.getArgs().size();
+			List<List<String>> signatures = mapdef.getGetterTypeSignatures(fieldName);
+			for ( List<String> parameters : signatures ) {
+				if ( parameters.size() == numberOfArguments ) {
+					return;
+				}
+			}
+
+			error("Invalid number of arguments", NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__ARGS);
+		} else {
+			error("Invalid mappable field: " + fieldName, NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__ARGS);
 		}
-		
-		error("Invalid number of arguments", NavascriptPackage.Literals.MAPPABLE_IDENTIFIER__ARGS);
+	}
+
+	@Check
+	public void checkMappedMappedArrayFieldImpl(MappedArrayFieldImpl maf) {
+		String raw = maf.getField();
+		int level = NavigationUtils.countMappableParentLevel(raw);
+		String field = NavigationUtils.getFieldFromMappableIdentifier(raw);
+		EObject eObject = NavigationUtils.findFirstMapOrMappedField(maf.eContainer(), level);
+		AdapterClassDefinition map = NavigationUtils.findAdapterClass(adapters, eObject);
+		if ( map != null ) {
+			
+			boolean isValid = map.isGetter(field);
+			if ( !isValid ) {
+				error("Cannot find field: " + field, NavascriptPackage.Literals.MAPPED_ARRAY_FIELD__FIELD );
+			}
+		} else {
+			warning("Cannot find adapter for field: " + raw, NavascriptPackage.Literals.MAPPED_ARRAY_FIELD__FIELD );
+		}
 	}
 	
 	@Check
@@ -112,45 +153,50 @@ public class NavascriptValidator extends AbstractNavascriptValidator implements 
 
 		try {
 
-			MapImpl map = findFirstMap(am.eContainer());
-			String adapterName = map.getAdapterName();
-			if ( adapterName == null || "null".equals(adapterName)) {
-				error("Missing adapter definition for method", NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
-				return;
-			}
-
-			KeyValueArguments kvas =  am.getArguments();
-
-			MapDefinitionExtended mapdef = adapters.getAdapter(adapterName);
-			
-			if ( mapdef == null ) {
-				return;
-			}
-			
-			List<String> parameters = new ArrayList<>();
-
-			if ( kvas != null ) {
-				for ( KeyValueArgument a : kvas.getKeyValueArguments()) {
-					parameters.add(a.getKey());
+			EObject eObject = NavigationUtils.findFirstMapOrMappedField(am.eContainer(), 0);
+			if ( eObject instanceof MapImpl ) {
+				MapImpl map = (MapImpl) eObject;
+				String adapterName = map.getAdapterName();
+				if ( adapterName == null || "null".equals(adapterName)) {
+					error("Missing adapter definition for method", NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
+					return;
 				}
-			}
 
-			String methodName = am.getMethod().substring(1);
-			Set<String> missing = mapdef.missingRequiredParameters(methodName, parameters);
+				KeyValueArguments kvas =  am.getArguments();
 
-			Set<String> unknown = mapdef.unknownParameters(methodName, parameters);
+				AdapterClassDefinition mapdef = adapters.getAdapter(adapterName);
 
-			StringBuffer message = new StringBuffer();
-			if ( missing.size() > 0 ) {
-				message.append("Missing required parameters: " + missing + ". ");
-			}
-			if ( unknown.size() > 0 ) {
-				message.append("Unknown parameters: " + unknown);
-			}
-			if ( missing.size() > 0 || unknown.size() > 0) { 
-				error(message.toString(), NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
-			}
+				if ( mapdef == null ) {
+					return;
+				}
 
+				List<String> parameters = new ArrayList<>();
+
+				if ( kvas != null ) {
+					for ( KeyValueArgument a : kvas.getKeyValueArguments()) {
+						parameters.add(a.getKey());
+					}
+				}
+
+				String methodName = am.getMethod().substring(1);
+				Set<String> missing = mapdef.missingRequiredParameters(methodName, parameters);
+
+				Set<String> unknown = mapdef.unknownParameters(methodName, parameters);
+
+				StringBuffer message = new StringBuffer();
+				if ( missing.size() > 0 ) {
+					message.append("Missing required parameters: " + missing + ". ");
+				}
+				if ( unknown.size() > 0 ) {
+					message.append("Unknown parameters: " + unknown);
+				}
+				if ( missing.size() > 0 || unknown.size() > 0) { 
+					error(message.toString(), NavascriptPackage.Literals.ADAPTER_METHOD__METHOD);
+				}
+
+			} else {
+
+			}
 		} catch (Throwable t) {
 			t.printStackTrace(System.err);
 		}

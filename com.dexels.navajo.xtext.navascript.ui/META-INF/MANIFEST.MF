@@ -23,7 +23,8 @@ Import-Package: com.dexels.navajo.mapping,
  com.dexels.navajo.navascript.impl,
  com.dexels.navajo.xtext.navascript.navajobridge,
  org.apache.log4j,
- org.eclipse.xtext.xbase.ui.hover
+ org.eclipse.xtext.xbase.ui.hover,
+ org.slf4j;version="1.4.3"
 Export-Package: com.dexels.navajo.ui,
  com.dexels.navajo.ui.contentassist,
  com.dexels.navajo.ui.labeling,

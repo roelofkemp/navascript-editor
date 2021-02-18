@@ -12,27 +12,30 @@ import org.osgi.service.event.EventHandler;
 import com.dexels.navajo.mapping.compiler.meta.MapDefinition;
 import com.dexels.navajo.xtext.navascript.navajobridge.AdapterInterrogator;
 import com.dexels.navajo.xtext.navascript.navajobridge.FunctionDefinition;
-import com.dexels.navajo.xtext.navascript.navajobridge.MapDefinitionExtended;
+import com.dexels.navajo.xtext.navascript.navajobridge.AdapterClassDefinition;
 
 public class NavajoProxyStub implements EventHandler {
 
 	private EventAdmin myEventAdmin;
 
-	private Map<String, MapDefinitionExtended> adapters = new TreeMap<>();
+	private Map<String, AdapterClassDefinition> adapters = new TreeMap<>();
 	private Map<String, FunctionDefinition> functions = new TreeMap<>();
 
 	public void init(MapDefinitionInterrogatorImpl mdii) throws Exception {
 
 		List<MapDefinition> allAdapters = mdii.getAdapters();
 		functions = mdii.getFunctions();
-		
+
 		for ( MapDefinition md : allAdapters ) {
-			if ( md.getValueDefinitions().size() > 0 ) {
-				adapters.put(md.tagName, new MapDefinitionExtended(md));
-				
+			if ( md.objectName != null && !"".equals(md.objectName)) {
+				try {
+					adapters.put(md.tagName, new AdapterClassDefinition(md));
+				} catch (Exception e) {
+					System.err.println("Could not add " + md.tagName + ": " + e.getLocalizedMessage());
+				}
 			}
 		}
-		
+
 	}
 
 	private void addExtension(MapDefinitionInterrogatorImpl mdii, String ext) {
@@ -42,12 +45,12 @@ public class NavajoProxyStub implements EventHandler {
 			System.err.println("Could not load " + ext + ": " + e.getLocalizedMessage());
 		}
 	}
-	
+
 	public void activate() {
 		System.err.println("In NavajoProxyStub.activate()");
 		try {
 			MapDefinitionInterrogatorImpl mdii = new MapDefinitionInterrogatorImpl();
-			
+
 			addExtension(mdii, "com.dexels.navajo.adapter.functions.StandardAdapterFunctionLibrary");
 			addExtension(mdii, "com.dexels.navajo.adapter.StandardAdapterLibrary");
 			addExtension(mdii, "com.dexels.navajo.adapter.core.NavajoEnterpriseCoreAdapterLibrary");
@@ -56,7 +59,7 @@ public class NavajoProxyStub implements EventHandler {
 			addExtension(mdii, "com.dexels.navajo.functions.StandardFunctionDefinitions");
 			addExtension(mdii, "com.dexels.navajo.functions.StandardFunctionDefinitions");
 			addExtension(mdii, "com.dexels.navajo.adapter.functions.StandardAdapterFunctionLibrary");
-			
+
 			init(mdii);
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
@@ -82,12 +85,12 @@ public class NavajoProxyStub implements EventHandler {
 		System.err.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> Received event: " + event);
 		sendResponse();
 	}
-	
+
 	public static void main(String [] args) {
-		
+
 		NavajoProxyStub n = new NavajoProxyStub();
 		n.activate();
-		
+
 		for ( String s : n.functions.keySet() ) {
 			System.err.println(n + " -> " + n.functions.get(s).getInput());
 		}
